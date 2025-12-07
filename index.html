@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discord Slot – 10 Linee con Bonus</title>
+  <title>Discord Slot – 10 Linee Wild / Scatter / Multi</title>
   <style>
     :root {
       --cell-size: min(24vw, 150px);
@@ -226,7 +226,7 @@
 
     .message {
       min-height: 1.4rem;
-      max-width: 520px;
+      max-width: 620px;
       text-align: center;
       font-size: 0.9rem;
       margin-top: 2px;
@@ -274,9 +274,9 @@
   </style>
 </head>
 <body>
-  <h1>Discord Slot – 10 Linee con Bonus</h1>
+  <h1>Discord Slot – 10 Linee Wild / Scatter / Multi</h1>
   <p class="subtitle">
-    3×5 con fino a 10 linee, scatter per free spin e vincite moltiplicate 🎰
+    3×5 con fino a 10 linee, wild che sostituisce, scatter con free spin e multipliers sulle linee ⚡
   </p>
 
   <div class="slot-wrapper">
@@ -331,7 +331,7 @@
         <button class="step" id="bet-minus">−</button>
         <span id="bet-per-line" class="value">1</span>
         <button class="step" id="bet-plus">+</button>
-        <span>| Puntata totale:
+        <span>| Totale:
           <span id="total-bet" class="value">10</span>
         </span>
       </div>
@@ -380,11 +380,23 @@
       isScatter: true
     };
 
+    const WILD = {
+      name: "WILD",
+      img: "img/wild.png",
+      isWild: true
+    };
+
+    const MULT = {
+      name: "MULT",
+      img: "img/multi.png",
+      isMultiplier: true
+    };
+
     const ROWS = 3;
     const COLS = 5;
     const TOTAL_SLOTS = ROWS * COLS;
 
-    // Layout griglia:
+    // layout griglia:
     // riga 0:  0  1  2  3  4
     // riga 1:  5  6  7  8  9
     // riga 2: 10 11 12 13 14
@@ -403,14 +415,14 @@
     ];
     const TOTAL_LINES = PAYLINES.length;
 
-    // payout 3/4/5 uguali (x puntata/linea)
+    // payout 3/4/5 uguali (moltiplicatore per puntata/linea)
     const OF_A_KIND_MULT = {
       3: 2,
       4: 5,
       5: 10
     };
 
-    // scatter: moltiplicatore sulla PUNTATA TOTALE (linee attive × bet/linea)
+    // scatter paga sulla puntata totale
     const SCATTER_PAYOUT = {
       3: 5,
       4: 15,
@@ -419,14 +431,17 @@
 
     const FREE_SPIN_TRIGGER = 3;
     const FREE_SPIN_AWARD = 8;
-    const FREE_SPIN_MULTIPLIER = 2;
+    const FREE_SPIN_MULTIPLIER = 2; // tutte le win x2 nei free spin
 
-    // distribuzione simboli (scatter più raro)
+    // distribuzione simboli (scatter / wild / multiplier più rari)
     const WEIGHTED_SYMBOLS = [];
     members.forEach((m) => {
-      WEIGHTED_SYMBOLS.push({ symbol: m, weight: 4 });
+      WEIGHTED_SYMBOLS.push({ symbol: m, weight: 5 });
     });
     WEIGHTED_SYMBOLS.push({ symbol: SCATTER, weight: 1 });
+    WEIGHTED_SYMBOLS.push({ symbol: WILD, weight: 2 });
+    WEIGHTED_SYMBOLS.push({ symbol: MULT, weight: 1 });
+
     const TOTAL_WEIGHT = WEIGHTED_SYMBOLS.reduce(
       (sum, e) => sum + e.weight,
       0
@@ -445,7 +460,7 @@
       "#c77dff"
     ];
 
-    const STORAGE_KEY = "discord_slot_10lines_bonus_v1";
+    const STORAGE_KEY = "discord_slot_10lines_wsm_v1";
 
     // ---- STATO ----------------------------------------------------------
 
@@ -645,12 +660,14 @@
       if (!lines.length) return;
 
       const width = slotContainer.clientWidth;
-      const height = slotContainer.clientHeight;
       const svgNS = "http://www.w3.org/2000/svg";
 
       paylinesSvg.setAttribute("width", width);
-      paylinesSvg.setAttribute("height", height);
-      paylinesSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      paylinesSvg.setAttribute("height", slotContainer.clientHeight);
+      paylinesSvg.setAttribute(
+        "viewBox",
+        `0 0 ${slotContainer.clientWidth} ${slotContainer.clientHeight}`
+      );
 
       lines.forEach((line) => {
         const poly = document.createElementNS(svgNS, "polyline");
@@ -707,13 +724,14 @@
     // ---- LOGICA DI GIOCO -----------------------------------------------
 
     function spinOnce(fromAuto = false) {
-      // se bonus finito, torna a base
       if (inFreeSpins && freeSpins <= 0) {
         inFreeSpins = false;
         updateMode();
       }
 
-      if (fromAuto && !inFreeSpins) {
+      const wasFreeSpin = inFreeSpins;
+
+      if (fromAuto && !wasFreeSpin) {
         if (autoSpinsLeft <= 0) {
           updateAutoLabel();
           return;
@@ -724,8 +742,6 @@
 
       const currentBetPerLine = getCurrentBetPerLine();
       const currentLines = getCurrentLines();
-      const wasFreeSpin = inFreeSpins;
-
       let betTotal = 0;
 
       if (!wasFreeSpin) {
@@ -807,41 +823,86 @@
         }
       });
 
-      // linee
+      // linee con wild e multiplier
       for (let li = 0; li < currentLines; li++) {
         const line = PAYLINES[li];
         const indices = line.slots;
-        const firstSym = resultSymbols[indices[0]];
-        if (firstSym.isScatter) continue;
 
-        let count = 1;
-        for (let i = 1; i < indices.length; i++) {
-          const sym = resultSymbols[indices[i]];
-          if (sym.isScatter || sym.name !== firstSym.name) break;
-          count++;
-        }
+        // simboli su questa linea
+        const lineSyms = indices.map((i) => resultSymbols[i]);
 
-        if (count >= 3) {
-          const mult = OF_A_KIND_MULT[count] || 0;
-          if (mult > 0) {
-            const winAmount = mult * currentBetPerLine;
-            totalWinBase += winAmount;
-            const color = LINE_COLORS[li % LINE_COLORS.length];
-            lineWins.push({
-              lineName: line.name,
-              symbol: firstSym.name,
-              count,
-              mult,
-              winAmount,
-              winSlots: indices.slice(0, count),
-              lineSlots: indices,
-              color
-            });
+        // multipliers sulla linea
+        const multSlots = indices.filter(
+          (i) => resultSymbols[i].isMultiplier
+        );
+        const multCount = multSlots.length;
+        const lineMultiplier = multCount > 0 ? Math.pow(2, multCount) : 1;
+
+        // candidati: tutti i membri + wild puro
+        const candidates = [WILD, ...members];
+        let bestLineWin = 0;
+        let bestCount = 0;
+        let bestSymbolName = "";
+        let bestSlots = [];
+
+        candidates.forEach((cand) => {
+          const isCandWild = !!cand.isWild;
+          let count = 0;
+
+          for (let pos = 0; pos < indices.length; pos++) {
+            const sym = lineSyms[pos];
+            if (sym.isScatter || sym.isMultiplier) break;
+
+            if (!isCandWild) {
+              // candidato = simbolo normale
+              if (!(sym.name === cand.name || sym.isWild)) break;
+            } else {
+              // candidato = wild puro
+              if (!sym.isWild) break;
+            }
+            count++;
           }
+
+          if (count >= 3) {
+            const mult = OF_A_KIND_MULT[count] || 0;
+            if (mult > 0) {
+              const baseWin = mult * currentBetPerLine;
+              const lineWin = baseWin * lineMultiplier;
+              if (lineWin > bestLineWin) {
+                bestLineWin = lineWin;
+                bestCount = count;
+                bestSymbolName = isCandWild ? "Wild" : cand.name;
+                bestSlots = indices.slice(0, count);
+              }
+            }
+          }
+        });
+
+        if (bestLineWin > 0) {
+          totalWinBase += bestLineWin;
+          const color = LINE_COLORS[li % LINE_COLORS.length];
+
+          // includi anche i multiplier tra le caselle vincenti
+          const combinedSlots = [
+            ...bestSlots,
+            ...multSlots.filter((i) => !bestSlots.includes(i))
+          ];
+
+          lineWins.push({
+            lineName: line.name,
+            symbol: bestSymbolName,
+            count: bestCount,
+            baseMult: OF_A_KIND_MULT[bestCount],
+            lineMultiplier,
+            winAmount: bestLineWin,
+            winSlots: combinedSlots,
+            lineSlots: indices,
+            color
+          });
         }
       }
 
-      // payout scatter + bonus
+      // scatter payout + bonus
       let scatterWinBase = 0;
       let bonusText = "";
       if (scatterCount >= FREE_SPIN_TRIGGER) {
@@ -886,25 +947,32 @@
         markIndices(scatterIndices, "#ff9f1c");
       }
 
-      // messaggio
+      // messaggi
       if (totalWin > 0) {
         const parts = [];
+
         if (lineWins.length > 0) {
-          const text = lineWins
-            .map(
-              (w) =>
-                `${w.lineName} – ${w.count} di ${w.symbol} (${w.mult}× → +${w.winAmount})`
-            )
+          const linesText = lineWins
+            .map((w) => {
+              let basePart = `${w.lineName} – ${w.count} di ${w.symbol} (${w.baseMult}×`;
+              if (w.lineMultiplier > 1) {
+                basePart += ` × x${w.lineMultiplier} multi`;
+              }
+              basePart += ` → +${w.winAmount})`;
+              return basePart;
+            })
             .join(" | ");
-          parts.push(text);
+          parts.push(linesText);
         }
+
         if (scatterCount >= FREE_SPIN_TRIGGER) {
           parts.push(bonusText);
         }
 
         let type = "win";
         let label = "WIN!";
-        const refBet = baseTotalBet || betPerLine * activeLines;
+        const refBet = (betPerLine * activeLines) || betTotal || 1;
+
         if (totalWin >= refBet * 10) {
           type = "bigwin";
           label = "MEGA WIN!";
@@ -1072,7 +1140,7 @@
     updateMode();
     updateAutoLabel();
     setMessage(
-      "Slot 3×5 con scatter e 10 linee. Scegli linee, puntata e numero di auto-spin, poi schiaccia SPIN!"
+      "Slot 3×5 con wild, scatter e multiplier. Scegli linee, puntata e auto-spin, poi schiaccia SPIN!"
     );
   </script>
 </body>
