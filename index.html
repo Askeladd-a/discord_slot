@@ -8,12 +8,12 @@
     :root {
       --cell-size: min(24vw, 150px);
       --bg: #050608;
-      --card-bg: #20212b;
-      --card-border: #2b2c38;
-      --accent: #5865F2;
-      --accent-soft: #7c8bfd;
-      --text-main: #f5f5f5;
-      --text-muted: #b4b7c3;
+      --card-bg: #1f2027;
+      --card-border: #2a2b33;
+      --accent: #6c63ff;
+      --accent-soft: #8b83ff;
+      --text-main: #f4f6fb;
+      --text-muted: #b0b3bd;
     }
 
     * {
@@ -74,11 +74,11 @@
       display: grid;
       grid-template-columns: repeat(5, var(--cell-size));
       grid-template-rows: repeat(3, var(--cell-size));
-      gap: 8px;
-      padding: 12px;
-      background: #111219;
+      gap: 10px;
+      padding: 14px;
+      background: linear-gradient(180deg,#0f1116,#0b0c11);
       border-radius: 18px;
-      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.8);
+      box-shadow: inset 0 6px 18px rgba(0, 0, 0, 0.7);
       justify-content: center;
       position: relative;
       z-index: 1;
@@ -87,13 +87,13 @@
     .slot-cell {
       width: var(--cell-size);
       height: var(--cell-size);
-      background: #05070b;
+      background: linear-gradient(180deg,#0a0b0f,#07080b);
       border-radius: 14px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
     }
 
     .slot-cell img {
@@ -152,6 +152,138 @@
       justify-content: center;
       gap: 10px;
       margin-top: 4px;
+    }
+
+    /* play bar (compact controls sotto la slot) */
+    .play-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .controls-play { display:flex; gap:10px; align-items:center; }
+    .toggles { display:flex; gap:12px; align-items:center }
+    .play-area .bet { margin-right:12px; }
+    .controls.compact { display:none; }
+
+    .bottom-row {
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:10px;
+    }
+    .sim-controls { display:flex; gap:8px; align-items:center; }
+    .input-short { width:110px; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); background:#0e0f13; color:var(--text-main); }
+    .rtp-result { color:var(--text-muted); min-width:220px; text-align:center; }
+    .rtp-result strong { color: var(--accent); font-weight:800; }
+    .status-compact { color:var(--text-muted); display:flex; gap:8px; align-items:center; }
+    .value-compact { font-weight:700; color:var(--text-main); }
+
+    .play-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .play-area .step {
+      padding: 0.2rem 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    .currency {
+      font-weight: 700;
+      min-width: 86px;
+      text-align: center;
+    }
+
+    .toggle {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .toggle button {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #2b2d38;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .toggle button.active {
+      background: var(--accent);
+      box-shadow: 0 6px 14px rgba(88,101,242,0.28);
+    }
+
+    .play-btn {
+      padding: 0.6rem 1.1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      background: linear-gradient(180deg,var(--accent),var(--accent-soft));
+      color: white;
+      box-shadow: 0 14px 30px rgba(108,99,255,0.18);
+      letter-spacing: .4px;
+    }
+
+    /* improved control buttons */
+    .btn-primary, .btn-secondary, .step {
+      border: none;
+      background: #2b2d38;
+      color: var(--text-main);
+      padding: 0.5rem 0.7rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg,var(--accent),var(--accent-soft));
+      box-shadow: 0 14px 28px rgba(108,99,255,0.16);
+      color: white;
+      padding: 0.65rem 0.95rem;
+      border-radius: 14px;
+      font-weight:800;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(180deg,#33343c,#2b2d38);
+      color: var(--text-main);
+      padding: 0.5rem 0.85rem;
+    }
+
+    .step:hover, .btn-secondary:hover, .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    .step:active, .btn-secondary:active, .btn-primary:active {
+      transform: translateY(0px) scale(.995);
+    }
+
+    .step[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    /* tooltips removed per user request */
+
+    /* focus styles for accessibility */
+    .btn-primary:focus, .btn-secondary:focus, .step:focus {
+      outline: 3px solid rgba(88,101,242,0.22);
+      outline-offset: 3px;
     }
 
     .bet {
@@ -229,8 +361,11 @@
       max-width: 620px;
       text-align: center;
       font-size: 0.9rem;
-      margin-top: 2px;
+      margin-top: 6px;
       color: var(--text-muted);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+      padding: 8px 12px;
+      border-radius: 8px;
     }
 
     .message--win {
@@ -321,38 +456,47 @@
       </div>
       <div class="info-block">
         <span class="info-label">Linee attive:</span>
-        <span id="info-lines">10</span>
+        <span id="info-lines">25</span>
       </div>
     </div>
 
-    <div class="controls">
-      <div class="bet">
-        Puntata/linea:
-        <button class="step" id="bet-minus">−</button>
-        <span id="bet-per-line" class="value">1</span>
-        <button class="step" id="bet-plus">+</button>
-        <span>| Totale:
-          <span id="total-bet" class="value">10</span>
-        </span>
+    <!-- compact controls removed to declutter; main actions moved into play-bar for clarity -->
+
+    <div class="play-bar" id="playBar">
+      <div class="play-area">
+        <div class="currency">€ <span id="display-credits">0.00</span></div>
+        <div class="bet">Puntata/linea: <button class="step" id="bet-minus">−</button> <span id="bet-per-line" class="value">1.00</span> <button class="step" id="bet-plus">+</button></div>
+        <div class="bet">Linee: <span id="lines-count" class="value">25</span></div>
+        <div class="bet">Totale: <span id="total-bet" class="value">25.00</span></div>
       </div>
 
-      <div class="bet">
-        Linee:
-        <button class="step" id="lines-minus">−</button>
-        <span id="lines-count" class="value">10</span>
-        <button class="step" id="lines-plus">+</button>
+      <div class="controls-play">
+        <button class="btn-primary" id="spinBtn">SPIN</button>
+        <button class="btn-secondary" id="autoBtn">AUTO</button>
+        <button class="btn-secondary" id="resetBtn">RESET</button>
       </div>
 
-      <div class="bet">
-        Auto-spin:
-        <button class="step" id="auto-minus">−</button>
-        <span id="auto-count" class="value">10</span>
-        <button class="step" id="auto-plus">+</button>
+      <div class="toggles">
+        <div class="toggle"><label for="turboBtn">TURBO</label><button id="turboBtn" aria-pressed="false" aria-label="Toggle turbo">T</button></div>
+        <div class="toggle"><label for="autoToggle">AUTOMATICO</label><button id="autoToggle" aria-pressed="false" aria-label="Toggle auto">A</button></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="sim-controls">
+        <label class="info-label" for="rtp-count">Simulazioni</label>
+        <input id="rtp-count" type="number" value="100000" min="1000" step="1000" class="input-short" />
+        <button id="rtpBtn" class="step">Calcola RTP</button>
+        <div id="rtpResult" class="rtp-result">RTP: —</div>
       </div>
 
-      <button class="btn-primary" id="spinBtn">SPIN</button>
-      <button class="btn-secondary" id="autoBtn">AUTO</button>
-      <button class="btn-secondary" id="resetBtn">RESET 1000</button>
+      <div class="status-compact">
+        <span class="info-label">Crediti:</span>
+        <span id="creditsCompact" class="value-compact">0.00</span>
+        <span class="sep">•</span>
+        <span class="info-label">Modalità:</span>
+        <span id="modeCompact" class="value-compact">Base</span>
+      </div>
     </div>
 
     <div class="message" id="message"></div>
@@ -402,45 +546,81 @@
     // riga 2: 10 11 12 13 14
 
     const PAYLINES = [
-      { name: "Linea 1 (centrale)", slots: [5, 6, 7, 8, 9] },
-      { name: "Linea 2 (alta)", slots: [0, 1, 2, 3, 4] },
-      { name: "Linea 3 (bassa)", slots: [10, 11, 12, 13, 14] },
-      { name: "Linea 4 (diag ↘)", slots: [0, 6, 12, 8, 4] },
-      { name: "Linea 5 (diag ↗)", slots: [10, 6, 2, 8, 14] },
-      { name: "Linea 6 (zigzag alto)", slots: [0, 6, 7, 8, 4] },
-      { name: "Linea 7 (zigzag basso)", slots: [10, 6, 7, 8, 14] },
-      { name: "Linea 8 (M)", slots: [5, 1, 7, 13, 9] },
-      { name: "Linea 9 (M inversa)", slots: [5, 11, 7, 3, 9] },
-      { name: "Linea 10 (W)", slots: [0, 11, 2, 13, 4] }
+      { name: "Linea 1", slots: [5, 6, 7, 8, 9] },
+      { name: "Linea 2", slots: [0, 1, 2, 3, 4] },
+      { name: "Linea 3", slots: [10, 11, 12, 13, 14] },
+      { name: "Linea 4", slots: [0, 6, 12, 8, 4] },
+      { name: "Linea 5", slots: [10, 6, 2, 8, 14] },
+      { name: "Linea 6", slots: [0, 1, 1, 1, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 7", slots: [2, 2, 1, 2, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 8", slots: [1, 0, 0, 0, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 9", slots: [1, 2, 2, 2, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 10", slots: [0, 1, 1, 1, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 11", slots: [2, 1, 1, 1, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 12", slots: [1, 0, 1, 0, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 13", slots: [1, 2, 1, 2, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 14", slots: [0, 1, 0, 1, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 15", slots: [2, 1, 2, 1, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 16", slots: [0, 0, 2, 0, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 17", slots: [2, 2, 0, 2, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 18", slots: [0, 2, 1, 2, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 19", slots: [2, 0, 1, 0, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 20", slots: [1, 0, 2, 0, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 21", slots: [1, 2, 0, 2, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 22", slots: [0, 2, 2, 2, 0].map((r,c)=>r*5+c) },
+      { name: "Linea 23", slots: [2, 0, 0, 0, 2].map((r,c)=>r*5+c) },
+      { name: "Linea 24", slots: [0, 1, 2, 0, 1].map((r,c)=>r*5+c) },
+      { name: "Linea 25", slots: [2, 1, 0, 2, 1].map((r,c)=>r*5+c) }
     ];
     const TOTAL_LINES = PAYLINES.length;
 
-    // payout 3/4/5 uguali (moltiplicatore per puntata/linea)
-    const OF_A_KIND_MULT = {
-      3: 2,
-      4: 5,
-      5: 10
+    // per-symbol payouts for 3/4/5 matches (values in currency relative to betPerLine)
+    // scaled symbol payouts (tuning applied ×5)
+    const SYMBOL_PAYOUTS = {
+      // user1..user10 -> payouts for 3,4,5 (per-line amounts)
+      User1: {3:4.00*5, 4:8.00*5, 5:50.00*5},
+      User2: {3:1.20*5,4:3.00*5,5:10.00*5},
+      User3: {3:1.20*5,4:3.00*5,5:10.00*5},
+      User4: {3:0.80*5,4:1.50*5,5:6.00*5},
+      User5: {3:0.80*5,4:1.50*5,5:6.00*5},
+      User6: {3:0.50*5,4:0.80*5,5:3.00*5},
+      User7: {3:0.50*5,4:0.80*5,5:3.00*5},
+      User8: {3:0.50*5,4:0.80*5,5:3.00*5},
+      User9: {3:0.50*5,4:0.80*5,5:3.00*5},
+        User10:{3:0.50*5,4:0.80*5,5:3.00*5}
     };
 
     // scatter paga sulla puntata totale
+    // scaled payouts (tuning): scale x5
     const SCATTER_PAYOUT = {
-      3: 5,
-      4: 15,
-      5: 30
+      3: 5 * 5,
+      4: 15 * 5,
+      5: 30 * 5
     };
 
+    // multipliers for 'of a kind' used in UI messages (3/4/5 of a kind)
+    const OF_A_KIND_MULT = { 3: 2, 4: 5, 5: 10 };
+
     const FREE_SPIN_TRIGGER = 3;
-    const FREE_SPIN_AWARD = 8;
+    // free spin awards based on scatter count (attachment reference)
+    const FREE_SPIN_AWARDS = {
+      3: 10,
+      4: 20,
+      5: 50
+    };
     const FREE_SPIN_MULTIPLIER = 2; // tutte le win x2 nei free spin
+    // multiplier symbol value: each MULT symbol multiplies wins by MULT_VALUE (stacked as power)
+    const MULT_VALUE = 2;
 
     // distribuzione simboli (scatter / wild / multiplier più rari)
     const WEIGHTED_SYMBOLS = [];
+    // member weight kept at 5. Scatter 1. Wild and Mult increased per tuning.
     members.forEach((m) => {
       WEIGHTED_SYMBOLS.push({ symbol: m, weight: 5 });
     });
     WEIGHTED_SYMBOLS.push({ symbol: SCATTER, weight: 1 });
-    WEIGHTED_SYMBOLS.push({ symbol: WILD, weight: 2 });
-    WEIGHTED_SYMBOLS.push({ symbol: MULT, weight: 1 });
+    WEIGHTED_SYMBOLS.push({ symbol: WILD, weight: 6 });
+    WEIGHTED_SYMBOLS.push({ symbol: MULT, weight: 4 });
 
     const TOTAL_WEIGHT = WEIGHTED_SYMBOLS.reduce(
       (sum, e) => sum + e.weight,
@@ -461,13 +641,15 @@
     ];
 
     const STORAGE_KEY = "discord_slot_10lines_wsm_v1";
+    let turboMode = false;
 
     // ---- STATO ----------------------------------------------------------
 
-    let credits = 1000;
-    let betPerLine = 1;
-    const MIN_BET_PER_LINE = 1;
-    const MAX_BET_PER_LINE = 20;
+    let credits = 1000.0;
+    let betPerLine = 1.0;
+    const MIN_BET_PER_LINE = 0.01; // allow betting cents
+    const BET_STEP = 0.01;
+    const MAX_BET_PER_LINE = 100;
 
     let activeLines = TOTAL_LINES;
     const MIN_LINES = 1;
@@ -514,6 +696,13 @@
 
     const slotContainer = document.querySelector(".slot-container");
     const paylinesSvg = document.getElementById("paylinesSvg");
+    const displayCreditsEl = document.getElementById("display-credits");
+    const betTotalMinusBtn = document.getElementById("bet-total-minus");
+    const betTotalPlusBtn = document.getElementById("bet-total-plus");
+    const betTotalDisplay = document.getElementById("bet-total-display");
+    const turboBtn = document.getElementById("turboBtn");
+    const autoToggleBtn = document.getElementById("autoToggle");
+    const playSmallBtn = document.getElementById("playSmall");
 
     // ---- UTIL -----------------------------------------------------------
 
@@ -523,7 +712,8 @@
           credits,
           betPerLine,
           activeLines,
-          autoSpinCount
+          autoSpinCount,
+          turboMode
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch {}
@@ -553,6 +743,9 @@
             Math.max(MIN_AUTO, state.autoSpinCount)
           );
         }
+        if (typeof state.turboMode === "boolean") {
+          turboMode = state.turboMode;
+        }
       } catch {}
     }
 
@@ -564,28 +757,39 @@
       return inFreeSpins ? bonusLines : activeLines;
     }
 
+    function formatCurrency(n) {
+      return Number(n).toFixed(2);
+    }
+
     function updateCredits() {
-      creditsEl.textContent = credits;
+      creditsEl.textContent = formatCurrency(credits);
+      if (displayCreditsEl) displayCreditsEl.textContent = formatCurrency(credits);
+      const creditsCompact = document.getElementById('creditsCompact');
+      if (creditsCompact) creditsCompact.textContent = formatCurrency(credits);
     }
 
     function updateMode() {
       modeEl.textContent = inFreeSpins ? "Bonus (Free Spin)" : "Base";
       fsCountEl.textContent = freeSpins;
+      const modeCompact = document.getElementById('modeCompact');
+      if (modeCompact) modeCompact.textContent = inFreeSpins ? "Bonus" : "Base";
     }
 
     function updateLastWin() {
-      lastWinEl.textContent = lastWin;
+      lastWinEl.textContent = formatCurrency(lastWin);
     }
 
     function updateBetDisplay() {
-      betPerLineEl.textContent = betPerLine;
-      totalBetEl.textContent = betPerLine * activeLines;
+      betPerLineEl.textContent = formatCurrency(betPerLine);
+      totalBetEl.textContent = formatCurrency(betPerLine * activeLines);
+      if (betTotalDisplay) betTotalDisplay.textContent = formatCurrency(betPerLine * activeLines);
     }
 
     function updateLinesDisplay() {
       linesCountEl.textContent = activeLines;
       infoLinesEl.textContent = activeLines;
-      totalBetEl.textContent = betPerLine * activeLines;
+      totalBetEl.textContent = formatCurrency(betPerLine * activeLines);
+      if (betTotalDisplay) betTotalDisplay.textContent = formatCurrency(betPerLine * activeLines);
     }
 
     function updateAutoCountDisplay() {
@@ -605,12 +809,22 @@
       }
     }
 
-    function randomSymbol() {
-      let r = Math.random() * TOTAL_WEIGHT;
+    function randomSymbol(slotIndex = 0) {
+      // choose symbol respecting reel-specific restrictions (wild only on reels 2..4 -> indexes 1..3)
+      const col = slotIndex % COLS;
+      let total = 0;
       for (const entry of WEIGHTED_SYMBOLS) {
-        if (r < entry.weight) return entry.symbol;
-        r -= entry.weight;
+        // if entry is WILD and column is first or last, skip by treating weight 0
+        const w = entry.symbol.isWild && (col === 0 || col === COLS - 1) ? 0 : entry.weight;
+        total += w;
       }
+      let r = Math.random() * total;
+      for (const entry of WEIGHTED_SYMBOLS) {
+        const w = entry.symbol.isWild && (col === 0 || col === COLS - 1) ? 0 : entry.weight;
+        if (r < w) return entry.symbol;
+        r -= w;
+      }
+      // fallback
       return WEIGHTED_SYMBOLS[0].symbol;
     }
 
@@ -698,11 +912,11 @@
         [4, 9, 14]
       ];
       let finishedColumns = 0;
-      const steps = 4;
-      const stepDuration = 120;
+      const steps = turboMode ? 3 : 4;
+      const stepDuration = turboMode ? 70 : 120;
 
       columns.forEach((indices, colIndex) => {
-        const startDelay = colIndex * 140;
+        const startDelay = colIndex * (turboMode ? 80 : 140);
         setTimeout(() => {
           let step = 0;
           const interval = setInterval(() => {
@@ -770,19 +984,30 @@
 
       const finalSymbols = [];
       for (let i = 0; i < TOTAL_SLOTS; i++) {
-        finalSymbols.push(randomSymbol());
+        finalSymbols.push(randomSymbol(i));
       }
 
       spinAnimation(finalSymbols, () => {
-        evaluateResult(
-          finalSymbols,
-          betTotal,
-          currentBetPerLine,
-          currentLines,
-          wasFreeSpin
-        );
-        spinBtn.disabled = false;
-        autoBtn.disabled = false;
+        try {
+          evaluateResult(
+            finalSymbols,
+            betTotal,
+            currentBetPerLine,
+            currentLines,
+            wasFreeSpin
+          );
+        } catch (err) {
+          console.error("Error in evaluateResult:", err);
+          setMessage("Errore interno durante la risoluzione del giro. Riprova.", "error");
+        } finally {
+          // ensure UI is always re-enabled so user can continue
+          try {
+            if (spinBtn) spinBtn.disabled = false;
+            if (autoBtn) autoBtn.disabled = false;
+          } catch (e) {
+            console.error("Error re-enabling buttons:", e);
+          }
+        }
 
         if (autoSpinsLeft > 0 && !inFreeSpins) {
           const nextBet = betPerLine * activeLines;
@@ -807,6 +1032,15 @@
       currentLines,
       wasFreeSpin
     ) {
+      // compute wild multiplier sum: for every wild present, add random 1/2/3
+      let wildMultiplierSum = 0;
+      resultSymbols.forEach((s) => {
+        if (s.isWild) {
+          wildMultiplierSum += 1 + Math.floor(Math.random() * 3); // 1..3
+        }
+      });
+      const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
+
       let totalWinBase = 0;
       lastWin = 0;
       const lineWins = [];
@@ -836,7 +1070,7 @@
           (i) => resultSymbols[i].isMultiplier
         );
         const multCount = multSlots.length;
-        const lineMultiplier = multCount > 0 ? Math.pow(2, multCount) : 1;
+        const lineMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
 
         // candidati: tutti i membri + wild puro
         const candidates = [WILD, ...members];
@@ -863,19 +1097,25 @@
             count++;
           }
 
-          if (count >= 3) {
-            const mult = OF_A_KIND_MULT[count] || 0;
-            if (mult > 0) {
-              const baseWin = mult * currentBetPerLine;
-              const lineWin = baseWin * lineMultiplier;
-              if (lineWin > bestLineWin) {
-                bestLineWin = lineWin;
-                bestCount = count;
-                bestSymbolName = isCandWild ? "Wild" : cand.name;
-                bestSlots = indices.slice(0, count);
+            if (count >= 3) {
+              let basePayout = 0;
+              if (isCandWild) {
+                basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][count] || 0 : 0;
+              } else {
+                basePayout = (SYMBOL_PAYOUTS[cand.name] && SYMBOL_PAYOUTS[cand.name][count]) || 0;
+              }
+              if (basePayout > 0) {
+                // basePayout is expressed as multiples relative to 1 unit of betPerLine
+                // multiply by currentBetPerLine so cent bets scale correctly
+                const lineWin = basePayout * lineMultiplier * currentBetPerLine;
+                if (lineWin > bestLineWin) {
+                  bestLineWin = lineWin;
+                  bestCount = count;
+                  bestSymbolName = isCandWild ? "Wild" : cand.name;
+                  bestSlots = indices.slice(0, count);
+                }
               }
             }
-          }
         });
 
         if (bestLineWin > 0) {
@@ -913,14 +1153,15 @@
           totalWinBase += scatterWinBase;
         }
 
-        freeSpins += FREE_SPIN_AWARD;
+        const awarded = FREE_SPIN_AWARDS[key] || 0;
+        freeSpins = Math.min(50, freeSpins + awarded);
         inFreeSpins = true;
         bonusBetPerLine = currentBetPerLine;
         bonusLines = currentLines;
         autoSpinsLeft = 0;
         updateAutoLabel();
 
-        bonusText = `Bonus! ${scatterCount} scatter: ${scatterMult}× puntata totale (+${scatterWinBase}) e +${FREE_SPIN_AWARD} free spin 🎁`;
+        bonusText = `Bonus! ${scatterCount} scatter: ${scatterMult}× puntata totale (+${scatterWinBase}) e +${awarded} free spin 🎁`;
       }
 
       // moltiplicatore free spin
@@ -930,7 +1171,11 @@
       }
 
       if (totalWin > 0) {
-        credits += totalWin;
+        // apply wild multiplier to totalWin
+        const multiplied = totalWin * wildMultiplier;
+        console.debug('Win debug:', { baseTotalBet, totalWinBase, wildMultiplier, multiplied, creditsBefore: credits });
+        credits += multiplied;
+        totalWin = multiplied;
         updateCredits();
         saveState();
       }
@@ -958,7 +1203,7 @@
               if (w.lineMultiplier > 1) {
                 basePart += ` × x${w.lineMultiplier} multi`;
               }
-              basePart += ` → +${w.winAmount})`;
+              basePart += ` → +${formatCurrency(w.winAmount)})`;
               return basePart;
             })
             .join(" | ");
@@ -983,7 +1228,7 @@
 
         let msg = `${label} ${parts.join(
           " • "
-        )} – Totale: +${totalWin} crediti`;
+        )} – Totale: +${formatCurrency(totalWin)} crediti`;
         if (wasFreeSpin && totalWinBase > 0) {
           msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
         }
@@ -1003,112 +1248,213 @@
       }
     }
 
+    // --- Simulazione (versione headless per RTP estimation)
+    function evaluatePayout(resultSymbols, currentBetPerLine, currentLines) {
+      // Restituisce l'ammontare vinto per questa giocata (numero)
+      let totalWinBase = 0;
+
+      const baseTotalBet = currentBetPerLine * currentLines;
+
+      // scatter
+      let scatterCount = 0;
+      resultSymbols.forEach((sym) => {
+        if (sym.isScatter) scatterCount++;
+      });
+
+      // linee
+      for (let li = 0; li < currentLines; li++) {
+        const line = PAYLINES[li];
+        const indices = line.slots;
+        const lineSyms = indices.map((i) => resultSymbols[i]);
+
+        const multSlots = indices.filter((i) => resultSymbols[i].isMultiplier);
+        const multCount = multSlots.length;
+        const lineMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
+
+        const candidates = [WILD, ...members];
+        let bestLineWin = 0;
+
+        candidates.forEach((cand) => {
+          const isCandWild = !!cand.isWild;
+          let count = 0;
+          for (let pos = 0; pos < indices.length; pos++) {
+            const sym = lineSyms[pos];
+            if (sym.isScatter || sym.isMultiplier) break;
+            if (!isCandWild) {
+              if (!(sym.name === cand.name || sym.isWild)) break;
+            } else {
+              if (!sym.isWild) break;
+            }
+            count++;
+          }
+          if (count >= 3) {
+            let basePayout = 0;
+            if (isCandWild) {
+              basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][count] || 0 : 0;
+            } else {
+              basePayout = (SYMBOL_PAYOUTS[cand.name] && SYMBOL_PAYOUTS[cand.name][count]) || 0;
+            }
+            if (basePayout > 0) {
+              // basePayout is expressed relative to 1 unit of betPerLine
+              const lineWin = basePayout * lineMultiplier * currentBetPerLine;
+              if (lineWin > bestLineWin) bestLineWin = lineWin;
+            }
+          }
+        });
+
+        if (bestLineWin > 0) totalWinBase += bestLineWin;
+      }
+
+      // scatter payout
+      if (scatterCount >= FREE_SPIN_TRIGGER) {
+        const key = scatterCount >= 5 ? 5 : scatterCount;
+        const scatterMult = SCATTER_PAYOUT[key] || 0;
+        if (scatterMult > 0) {
+          const scatterWinBase = scatterMult * baseTotalBet;
+          totalWinBase += scatterWinBase;
+        }
+      }
+
+      // headless: apply wild multipliers (sum 1..3 per wild)
+      let wildMultiplierSum = 0;
+      resultSymbols.forEach((s) => {
+        if (s.isWild) {
+          wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
+        }
+      });
+      const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
+
+      const total = totalWinBase * wildMultiplier;
+      // debug: return value used by RTP estimation
+      // console.debug('evaluatePayout', { totalWinBase, wildMultiplier, total });
+      return total;
+    }
+
+    function randomFinalSymbols() {
+      const finalSymbols = [];
+      for (let i = 0; i < TOTAL_SLOTS; i++) finalSymbols.push(randomSymbol(i));
+      return finalSymbols;
+    }
+
+    async function estimateRTP(spins, betPerLineForSim = betPerLine, linesForSim = activeLines, onProgress) {
+      let totalBet = 0;
+      let totalWin = 0;
+      const chunk = 2000;
+      for (let i = 0; i < spins; i += chunk) {
+        const end = Math.min(spins, i + chunk);
+        for (let j = i; j < end; j++) {
+          const finalSymbols = randomFinalSymbols();
+          const win = evaluatePayout(finalSymbols, betPerLineForSim, linesForSim);
+          totalWin += win;
+          totalBet += betPerLineForSim * linesForSim;
+        }
+        if (onProgress) onProgress(Math.min(1, (end) / spins));
+        // yield to UI
+        await new Promise((r) => setTimeout(r, 0));
+      }
+      return { totalBet, totalWin, rtp: totalWin / totalBet };
+    }
+
     // ---- EVENTI ---------------------------------------------------------
 
-    betMinusBtn.addEventListener("click", () => {
-      if (inFreeSpins) {
-        setMessage(
-          "Non puoi cambiare la puntata durante i free spin.",
-          "error"
-        );
-        return;
-      }
-      if (betPerLine > MIN_BET_PER_LINE) {
-        betPerLine--;
-        updateBetDisplay();
-        saveState();
-      }
-    });
+    if (betMinusBtn) {
+      betMinusBtn.addEventListener("click", () => {
+        if (inFreeSpins) {
+          setMessage(
+            "Non puoi cambiare la puntata durante i free spin.",
+            "error"
+          );
+          return;
+        }
+        if (betPerLine > MIN_BET_PER_LINE) {
+          betPerLine = Math.max(MIN_BET_PER_LINE, parseFloat((betPerLine - BET_STEP).toFixed(2)));
+          updateBetDisplay();
+          saveState();
+        }
+      });
+    }
 
-    betPlusBtn.addEventListener("click", () => {
-      if (inFreeSpins) {
-        setMessage(
-          "Non puoi cambiare la puntata durante i free spin.",
-          "error"
-        );
-        return;
-      }
-      if (betPerLine < MAX_BET_PER_LINE) {
-        betPerLine++;
-        updateBetDisplay();
-        saveState();
-      }
-    });
+    if (betPlusBtn) {
+      betPlusBtn.addEventListener("click", () => {
+        if (inFreeSpins) {
+          setMessage(
+            "Non puoi cambiare la puntata durante i free spin.",
+            "error"
+          );
+          return;
+        }
+        if (betPerLine < MAX_BET_PER_LINE) {
+          betPerLine = Math.min(MAX_BET_PER_LINE, parseFloat((betPerLine + BET_STEP).toFixed(2)));
+          updateBetDisplay();
+          saveState();
+        }
+      });
+    }
 
-    linesMinusBtn.addEventListener("click", () => {
-      if (inFreeSpins) {
-        setMessage(
-          "Non puoi cambiare le linee durante i free spin.",
-          "error"
-        );
-        return;
-      }
-      if (activeLines > MIN_LINES) {
-        activeLines--;
-        updateLinesDisplay();
-        saveState();
-      }
-    });
+    // Paylines are fixed at 25. Disable any attempts to change them.
+    if (linesMinusBtn) {
+      linesMinusBtn.addEventListener("click", () => {
+        setMessage("Le linee sono fisse a 25 e non possono essere modificate.", "error");
+      });
+    }
+    if (linesPlusBtn) {
+      linesPlusBtn.addEventListener("click", () => {
+        setMessage("Le linee sono fisse a 25 e non possono essere modificate.", "error");
+      });
+    }
 
-    linesPlusBtn.addEventListener("click", () => {
-      if (inFreeSpins) {
-        setMessage(
-          "Non puoi cambiare le linee durante i free spin.",
-          "error"
-        );
-        return;
-      }
-      if (activeLines < MAX_LINES) {
-        activeLines++;
-        updateLinesDisplay();
-        saveState();
-      }
-    });
+    if (autoMinusBtn) {
+      autoMinusBtn.addEventListener("click", () => {
+        if (autoSpinCount > MIN_AUTO) {
+          autoSpinCount -= AUTO_STEP;
+          updateAutoCountDisplay();
+          saveState();
+        }
+      });
+    }
+    if (autoPlusBtn) {
+      autoPlusBtn.addEventListener("click", () => {
+        if (autoSpinCount < MAX_AUTO) {
+          autoSpinCount += AUTO_STEP;
+          updateAutoCountDisplay();
+          saveState();
+        }
+      });
+    }
 
-    autoMinusBtn.addEventListener("click", () => {
-      if (autoSpinCount > MIN_AUTO) {
-        autoSpinCount -= AUTO_STEP;
-        updateAutoCountDisplay();
-        saveState();
-      }
-    });
-
-    autoPlusBtn.addEventListener("click", () => {
-      if (autoSpinCount < MAX_AUTO) {
-        autoSpinCount += AUTO_STEP;
-        updateAutoCountDisplay();
-        saveState();
-      }
-    });
-
-    spinBtn.addEventListener("click", () => {
-      autoSpinsLeft = 0;
-      updateAutoLabel();
-      spinOnce(false);
-    });
-
-    autoBtn.addEventListener("click", () => {
-      if (inFreeSpins) {
-        setMessage(
-          "Non puoi avviare l'auto-spin durante i free spin.",
-          "error"
-        );
-        return;
-      }
-      if (autoSpinsLeft > 0) {
+    if (spinBtn) {
+      spinBtn.addEventListener("click", () => {
         autoSpinsLeft = 0;
         updateAutoLabel();
-        setMessage("Auto-spin fermato.");
-      } else {
-        autoSpinsLeft = autoSpinCount;
-        updateAutoLabel();
-        spinOnce(true);
-      }
-    });
+        spinOnce(false);
+      });
+    }
 
-    resetBtn.addEventListener("click", () => {
+    if (autoBtn) {
+      autoBtn.addEventListener("click", () => {
+        if (inFreeSpins) {
+          setMessage(
+            "Non puoi avviare l'auto-spin durante i free spin.",
+            "error"
+          );
+          return;
+        }
+        if (autoSpinsLeft > 0) {
+          autoSpinsLeft = 0;
+          updateAutoLabel();
+          setMessage("Auto-spin fermato.");
+        } else {
+          autoSpinsLeft = autoSpinCount;
+          updateAutoLabel();
+          spinOnce(true);
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
       credits = 1000;
-      betPerLine = 1;
+      betPerLine = 1.0;
       activeLines = TOTAL_LINES;
       autoSpinCount = 10;
       autoSpinsLeft = 0;
@@ -1127,7 +1473,87 @@
       updateAutoLabel();
       saveState();
       setMessage("Crediti, linee e puntata resettati.");
-    });
+      });
+    }
+
+    // play-bar controls
+    if (betTotalMinusBtn && betTotalPlusBtn && betTotalDisplay) {
+      const stepTotal = 0.01; // adjust total bet in euros (cents)
+      betTotalMinusBtn.addEventListener('click', () => {
+        const total = Math.max(0, parseFloat(((betPerLine * activeLines) - stepTotal).toFixed(2)));
+        betPerLine = Math.max(MIN_BET_PER_LINE, parseFloat((total / activeLines).toFixed(2)));
+        updateBetDisplay();
+        saveState();
+      });
+      betTotalPlusBtn.addEventListener('click', () => {
+        const total = parseFloat(((betPerLine * activeLines) + stepTotal).toFixed(2));
+        betPerLine = Math.min(MAX_BET_PER_LINE, parseFloat((total / activeLines).toFixed(2)));
+        updateBetDisplay();
+        saveState();
+      });
+    }
+
+    if (turboBtn) {
+      function updateTurboUI() {
+        if (turboMode) {
+          turboBtn.classList.add('active');
+            turboBtn.setAttribute('aria-pressed', 'true');
+        } else {
+          turboBtn.classList.remove('active');
+          turboBtn.setAttribute('aria-pressed', 'false');
+        }
+      }
+      turboBtn.addEventListener('click', () => {
+        turboMode = !turboMode;
+        updateTurboUI();
+        saveState();
+      });
+      updateTurboUI();
+    }
+
+    if (autoToggleBtn) {
+      autoToggleBtn.addEventListener('click', () => {
+        if (autoSpinsLeft > 0) {
+          autoSpinsLeft = 0;
+          autoToggleBtn.setAttribute('aria-pressed', 'false');
+          setMessage('Auto-spin fermato.');
+        } else {
+          autoSpinsLeft = autoSpinCount;
+          autoToggleBtn.setAttribute('aria-pressed', 'true');
+          setMessage(`Auto-spin avviato (${autoSpinsLeft})`);
+          spinOnce(true);
+        }
+        updateAutoLabel();
+      });
+    }
+
+    if (playSmallBtn) {
+      playSmallBtn.addEventListener('click', () => {
+        spinOnce(false);
+      });
+    }
+
+    // (Keyboard shortcuts removed per user request)
+
+    // RTP button
+    const rtpBtn = document.getElementById('rtpBtn');
+    const rtpCountEl = document.getElementById('rtp-count');
+    const rtpResultEl = document.getElementById('rtpResult');
+    if (rtpBtn && rtpCountEl && rtpResultEl) {
+      rtpBtn.addEventListener('click', async () => {
+        const n = Math.max(1000, Number(rtpCountEl.value) || 100000);
+        rtpResultEl.textContent = 'Calcolo in corso...';
+        rtpBtn.disabled = true;
+        const start = performance.now();
+        const result = await estimateRTP(n, betPerLine, activeLines, (p) => {
+          rtpResultEl.textContent = `Calcolo: ${Math.round(p*100)}%`;
+        });
+        const took = ((performance.now() - start) / 1000).toFixed(1);
+        const rtpPct = (result.rtp * 100).toFixed(3);
+        rtpResultEl.textContent = `RTP: ${rtpPct}% (spins: ${n}) — tempo: ${took}s`;
+        rtpBtn.disabled = false;
+      });
+    }
 
     // ---- INIT -----------------------------------------------------------
 
@@ -1142,6 +1568,10 @@
     setMessage(
       "Slot 3×5 con wild, scatter e multiplier. Scegli linee, puntata e auto-spin, poi schiaccia SPIN!"
     );
+
+    // assicurati che play-bar mostri i valori corretti
+    if (displayCreditsEl) displayCreditsEl.textContent = formatCurrency(credits);
+    if (betTotalDisplay) betTotalDisplay.textContent = formatCurrency(betPerLine * activeLines);
   </script>
 </body>
 </html>
