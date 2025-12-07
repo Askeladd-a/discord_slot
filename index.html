@@ -2,251 +2,552 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Discord Slot 3x5 – Bonus Free Spin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Slot – 10 Linee con Bonus</title>
   <style>
+    :root {
+      --cell-size: min(24vw, 150px);
+      --bg: #050608;
+      --card-bg: #20212b;
+      --card-border: #2b2c38;
+      --accent: #5865F2;
+      --accent-soft: #7c8bfd;
+      --text-main: #f5f5f5;
+      --text-muted: #b4b7c3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, sans-serif;
-      background: #111;
-      color: #f5f5f5;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #151824, #050608 60%);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      padding: 24px 12px;
     }
 
     h1 {
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
+      text-align: center;
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      text-shadow: 0 0 18px rgba(0, 0, 0, 0.7);
     }
 
-    p {
+    p.subtitle {
       margin-top: 0;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.9rem;
       font-size: 0.9rem;
       opacity: 0.9;
       text-align: center;
+      color: var(--text-muted);
+    }
+
+    .slot-wrapper {
+      background: radial-gradient(circle at top, #292b3a, #181924 60%);
+      border-radius: 22px;
+      padding: 18px;
+      border: 1px solid var(--card-border);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.75),
+        0 0 0 1px rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      max-width: 1000px;
+    }
+
+    .slot-frame {
+      position: relative;
+      display: inline-block;
     }
 
     .slot-container {
       display: grid;
-      grid-template-columns: repeat(5, 110px); /* 5 colonne */
-      grid-template-rows: repeat(3, 110px);    /* 3 righe */
+      grid-template-columns: repeat(5, var(--cell-size));
+      grid-template-rows: repeat(3, var(--cell-size));
       gap: 8px;
       padding: 12px;
-      background: #222;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      margin-bottom: 1rem;
+      background: #111219;
+      border-radius: 18px;
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      position: relative;
+      z-index: 1;
     }
 
     .slot-cell {
-      width: 110px;
-      height: 110px;
-      background: #000;
-      border-radius: 12px;
+      width: var(--cell-size);
+      height: var(--cell-size);
+      background: #05070b;
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
     }
 
     .slot-cell img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, outline 0.15s ease;
+      transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        outline 0.18s ease,
+        filter 0.18s ease;
     }
 
-    /* evidenzia simboli vincenti */
     .slot-cell img.win {
-      transform: scale(1.05);
-      outline: 3px solid #ffd700;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+      transform: scale(1.06);
+      outline: 3px solid var(--win-color, #ffd700);
+      box-shadow:
+        0 0 16px rgba(0, 0, 0, 0.8),
+        0 0 18px var(--win-color, #ffd700);
+      filter: saturate(1.25);
+    }
+
+    .paylines-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: visible;
+    }
+
+    .info-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 18px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .info-block {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .info-label {
+      opacity: 0.8;
     }
 
     .controls {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 0.4rem;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 4px;
     }
 
-    button {
-      padding: 0.5rem 1.5rem;
-      font-size: 1rem;
+    .bet {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .bet button.step {
+      padding: 0.1rem 0.55rem;
+      font-size: 0.9rem;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      background: #5865F2;
+      background: #323347;
       color: #fff;
       font-weight: 600;
     }
 
+    .bet span.value {
+      min-width: 2.4rem;
+      text-align: center;
+      display: inline-block;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 0.5rem 1.4rem;
+      font-size: 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition:
+        background 0.15s ease,
+        transform 0.1s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(88, 101, 242, 0.45);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(88, 101, 242, 0.6);
+    }
+
+    .btn-secondary {
+      background: #333548;
+      color: #e5e7ff;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #3c3f58;
+      transform: translateY(-1px);
+    }
+
     button:disabled {
-      background: #444;
+      background: #3a3a47 !important;
       cursor: not-allowed;
-    }
-
-    .credits, .message, .freespins {
-      font-size: 0.9rem;
-    }
-
-    .freespins {
-      opacity: 0.9;
+      box-shadow: none !important;
+      transform: none !important;
     }
 
     .message {
       min-height: 1.4rem;
-      max-width: 480px;
+      max-width: 520px;
       text-align: center;
+      font-size: 0.9rem;
+      margin-top: 2px;
+      color: var(--text-muted);
+    }
+
+    .message--win {
+      color: #b8ffb2;
+    }
+
+    .message--nice {
+      color: #ffe66d;
+    }
+
+    .message--bigwin {
+      color: #ffd166;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .message--error {
+      color: #ff7b7b;
+    }
+
+    .message--bonus {
+      color: #ffdd6f;
+    }
+
+    @media (max-width: 600px) {
+      .slot-wrapper {
+        padding: 14px;
+      }
+
+      .slot-container {
+        padding: 8px;
+        gap: 6px;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        padding: 0.45rem 1.1rem;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Discord Slot 3x5</h1>
-  <p>10 linee di pagamento + Scatter con bonus Free Spin 🎰</p>
+  <h1>Discord Slot – 10 Linee con Bonus</h1>
+  <p class="subtitle">
+    3×5 con fino a 10 linee, scatter per free spin e vincite moltiplicate 🎰
+  </p>
 
-  <div class="slot-container">
-    <!-- 3 righe x 5 colonne = 15 slot (id da 0 a 14) -->
-    <div class="slot-cell"><img id="slot-0"  src="img/user1.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-1"  src="img/user2.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-2"  src="img/user3.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-3"  src="img/user4.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-4"  src="img/user5.png" alt="" /></div>
+  <div class="slot-wrapper">
+    <div class="slot-frame">
+      <div class="slot-container">
+        <!-- 3 righe x 5 colonne = 15 slot (0–14) -->
+        <div class="slot-cell"><img id="slot-0" src="img/user1.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-1" src="img/user2.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-2" src="img/user3.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-3" src="img/user4.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-4" src="img/user5.png" alt="" /></div>
 
-    <div class="slot-cell"><img id="slot-5"  src="img/user6.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-6"  src="img/user7.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-7"  src="img/user8.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-8"  src="img/user9.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-9"  src="img/user10.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-5" src="img/user6.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-6" src="img/user7.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-7" src="img/user8.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-8" src="img/user9.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-9" src="img/user10.png" alt="" /></div>
 
-    <div class="slot-cell"><img id="slot-10" src="img/user1.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-11" src="img/user2.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-12" src="img/user3.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-13" src="img/user4.png" alt="" /></div>
-    <div class="slot-cell"><img id="slot-14" src="img/user5.png" alt="" /></div>
-  </div>
-
-  <div class="controls">
-    <div class="credits">Crediti: <span id="credits">50</span></div>
-    <div class="freespins">
-      Modalità: <span id="mode">Base</span> |
-      Free spin: <span id="fs-count">0</span>
+        <div class="slot-cell"><img id="slot-10" src="img/user1.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-11" src="img/user2.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-12" src="img/user3.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-13" src="img/user4.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-14" src="img/user5.png" alt="" /></div>
+      </div>
+      <svg id="paylinesSvg" class="paylines-svg"></svg>
     </div>
-    <button id="spinBtn">SPIN</button>
+
+    <div class="info-row">
+      <div class="info-block">
+        <span class="info-label">Crediti:</span>
+        <span id="credits">1000</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">Modalità:</span>
+        <span id="mode">Base</span>
+        <span class="info-label">| Free spin:</span>
+        <span id="fs-count">0</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">Ultima vincita:</span>
+        <span id="last-win">0</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">Linee attive:</span>
+        <span id="info-lines">10</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="bet">
+        Puntata/linea:
+        <button class="step" id="bet-minus">−</button>
+        <span id="bet-per-line" class="value">1</span>
+        <button class="step" id="bet-plus">+</button>
+        <span>| Puntata totale:
+          <span id="total-bet" class="value">10</span>
+        </span>
+      </div>
+
+      <div class="bet">
+        Linee:
+        <button class="step" id="lines-minus">−</button>
+        <span id="lines-count" class="value">10</span>
+        <button class="step" id="lines-plus">+</button>
+      </div>
+
+      <div class="bet">
+        Auto-spin:
+        <button class="step" id="auto-minus">−</button>
+        <span id="auto-count" class="value">10</span>
+        <button class="step" id="auto-plus">+</button>
+      </div>
+
+      <button class="btn-primary" id="spinBtn">SPIN</button>
+      <button class="btn-secondary" id="autoBtn">AUTO</button>
+      <button class="btn-secondary" id="resetBtn">RESET 1000</button>
+    </div>
+
     <div class="message" id="message"></div>
   </div>
 
   <script>
-    // Membri (metti le tue immagini)
+    // ---- CONFIG ---------------------------------------------------------
+
     const members = [
-      { name: "User1",  img: "img/user1.png"  },
-      { name: "User2",  img: "img/user2.png"  },
-      { name: "User3",  img: "img/user3.png"  },
-      { name: "User4",  img: "img/user4.png"  },
-      { name: "User5",  img: "img/user5.png"  },
-      { name: "User6",  img: "img/user6.png"  },
-      { name: "User7",  img: "img/user7.png"  },
-      { name: "User8",  img: "img/user8.png"  },
-      { name: "User9",  img: "img/user9.png"  },
+      { name: "User1", img: "img/user1.png" },
+      { name: "User2", img: "img/user2.png" },
+      { name: "User3", img: "img/user3.png" },
+      { name: "User4", img: "img/user4.png" },
+      { name: "User5", img: "img/user5.png" },
+      { name: "User6", img: "img/user6.png" },
+      { name: "User7", img: "img/user7.png" },
+      { name: "User8", img: "img/user8.png" },
+      { name: "User9", img: "img/user9.png" },
       { name: "User10", img: "img/user10.png" }
     ];
 
-    // 🔹 SCATTER (es: logo del server)
     const SCATTER = {
       name: "SCATTER",
       img: "img/scatter.png",
       isScatter: true
     };
 
-    // Tutti i simboli disponibili sui rulli
-    const symbols = [...members, SCATTER];
-
     const ROWS = 3;
     const COLS = 5;
-    const TOTAL_SLOTS = ROWS * COLS; // 15
+    const TOTAL_SLOTS = ROWS * COLS;
 
-    // 🔹 10 PAYLINES (ognuna è una sequenza di 5 indici)
-    // Griglia:
+    // Layout griglia:
     // riga 0:  0  1  2  3  4
     // riga 1:  5  6  7  8  9
     // riga 2: 10 11 12 13 14
-    const PAYLINES = [
-      {
-        name: "Linea alta",
-        slots: [0, 1, 2, 3, 4],
-        payout: 5
-      },
-      {
-        name: "Linea centrale",
-        slots: [5, 6, 7, 8, 9],
-        payout: 10
-      },
-      {
-        name: "Linea bassa",
-        slots: [10, 11, 12, 13, 14],
-        payout: 5
-      },
-      {
-        name: "Diag V ↘↗",
-        slots: [0, 6, 12, 8, 4],
-        payout: 15
-      },
-      {
-        name: "Diag V ↗↘",
-        slots: [10, 6, 2, 8, 14],
-        payout: 15
-      },
-      {
-        name: "Zigzag alto",
-        slots: [0, 6, 7, 8, 4],  // [0,1,1,1,0]
-        payout: 8
-      },
-      {
-        name: "Zigzag basso",
-        slots: [10, 6, 7, 8, 14], // [2,1,1,1,2]
-        payout: 8
-      },
-      {
-        name: "M-shape 1",
-        slots: [5, 1, 7, 13, 9],  // [1,0,1,2,1]
-        payout: 12
-      },
-      {
-        name: "M-shape 2",
-        slots: [5, 11, 7, 3, 9],  // [1,2,1,0,1]
-        payout: 12
-      },
-      {
-        name: "W-shape",
-        slots: [0, 11, 2, 13, 4], // [0,2,0,2,0]
-        payout: 20
-      }
-    ];
 
-    // 🔹 PAGAMENTI SCATTER (ovunque sui 15 rulli)
+    const PAYLINES = [
+      { name: "Linea 1 (centrale)", slots: [5, 6, 7, 8, 9] },
+      { name: "Linea 2 (alta)", slots: [0, 1, 2, 3, 4] },
+      { name: "Linea 3 (bassa)", slots: [10, 11, 12, 13, 14] },
+      { name: "Linea 4 (diag ↘)", slots: [0, 6, 12, 8, 4] },
+      { name: "Linea 5 (diag ↗)", slots: [10, 6, 2, 8, 14] },
+      { name: "Linea 6 (zigzag alto)", slots: [0, 6, 7, 8, 4] },
+      { name: "Linea 7 (zigzag basso)", slots: [10, 6, 7, 8, 14] },
+      { name: "Linea 8 (M)", slots: [5, 1, 7, 13, 9] },
+      { name: "Linea 9 (M inversa)", slots: [5, 11, 7, 3, 9] },
+      { name: "Linea 10 (W)", slots: [0, 11, 2, 13, 4] }
+    ];
+    const TOTAL_LINES = PAYLINES.length;
+
+    // payout 3/4/5 uguali (x puntata/linea)
+    const OF_A_KIND_MULT = {
+      3: 2,
+      4: 5,
+      5: 10
+    };
+
+    // scatter: moltiplicatore sulla PUNTATA TOTALE (linee attive × bet/linea)
     const SCATTER_PAYOUT = {
       3: 5,
       4: 15,
       5: 30
     };
 
-    // 🔹 PARAMETRI BONUS FREE SPIN
-    const FREE_SPIN_TRIGGER = 3;   // da 3 scatter in su
-    const FREE_SPIN_AWARD = 8;     // free spin assegnati ogni volta
-    const FREE_SPIN_MULTIPLIER = 2; // tutte le vincite x2 in bonus
+    const FREE_SPIN_TRIGGER = 3;
+    const FREE_SPIN_AWARD = 8;
+    const FREE_SPIN_MULTIPLIER = 2;
 
-    let credits = 50;
-    const spinCost = 1;
+    // distribuzione simboli (scatter più raro)
+    const WEIGHTED_SYMBOLS = [];
+    members.forEach((m) => {
+      WEIGHTED_SYMBOLS.push({ symbol: m, weight: 4 });
+    });
+    WEIGHTED_SYMBOLS.push({ symbol: SCATTER, weight: 1 });
+    const TOTAL_WEIGHT = WEIGHTED_SYMBOLS.reduce(
+      (sum, e) => sum + e.weight,
+      0
+    );
+
+    const LINE_COLORS = [
+      "#ffb703",
+      "#4cc9f0",
+      "#ff595e",
+      "#b8ff5c",
+      "#f72585",
+      "#ffd166",
+      "#06d6a0",
+      "#a0c4ff",
+      "#ffadad",
+      "#c77dff"
+    ];
+
+    const STORAGE_KEY = "discord_slot_10lines_bonus_v1";
+
+    // ---- STATO ----------------------------------------------------------
+
+    let credits = 1000;
+    let betPerLine = 1;
+    const MIN_BET_PER_LINE = 1;
+    const MAX_BET_PER_LINE = 20;
+
+    let activeLines = TOTAL_LINES;
+    const MIN_LINES = 1;
+    const MAX_LINES = TOTAL_LINES;
+
+    let autoSpinCount = 10;
+    const MIN_AUTO = 10;
+    const MAX_AUTO = 100;
+    const AUTO_STEP = 10;
+
+    let autoSpinsLeft = 0;
+    let lastWin = 0;
 
     let inFreeSpins = false;
     let freeSpins = 0;
+    let bonusBetPerLine = 1;
+    let bonusLines = TOTAL_LINES;
+
+    // ---- DOM ------------------------------------------------------------
 
     const creditsEl = document.getElementById("credits");
-    const messageEl = document.getElementById("message");
-    const spinBtn = document.getElementById("spinBtn");
     const modeEl = document.getElementById("mode");
     const fsCountEl = document.getElementById("fs-count");
+    const lastWinEl = document.getElementById("last-win");
+    const infoLinesEl = document.getElementById("info-lines");
+
+    const messageEl = document.getElementById("message");
+    const spinBtn = document.getElementById("spinBtn");
+    const autoBtn = document.getElementById("autoBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const betMinusBtn = document.getElementById("bet-minus");
+    const betPlusBtn = document.getElementById("bet-plus");
+    const betPerLineEl = document.getElementById("bet-per-line");
+    const totalBetEl = document.getElementById("total-bet");
+
+    const linesMinusBtn = document.getElementById("lines-minus");
+    const linesPlusBtn = document.getElementById("lines-plus");
+    const linesCountEl = document.getElementById("lines-count");
+
+    const autoMinusBtn = document.getElementById("auto-minus");
+    const autoPlusBtn = document.getElementById("auto-plus");
+    const autoCountEl = document.getElementById("auto-count");
+
+    const slotContainer = document.querySelector(".slot-container");
+    const paylinesSvg = document.getElementById("paylinesSvg");
+
+    // ---- UTIL -----------------------------------------------------------
+
+    function saveState() {
+      try {
+        const state = {
+          credits,
+          betPerLine,
+          activeLines,
+          autoSpinCount
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        if (typeof state.credits === "number") credits = state.credits;
+        if (typeof state.betPerLine === "number") {
+          betPerLine = Math.min(
+            MAX_BET_PER_LINE,
+            Math.max(MIN_BET_PER_LINE, state.betPerLine)
+          );
+        }
+        if (typeof state.activeLines === "number") {
+          activeLines = Math.min(
+            MAX_LINES,
+            Math.max(MIN_LINES, state.activeLines)
+          );
+        }
+        if (typeof state.autoSpinCount === "number") {
+          autoSpinCount = Math.min(
+            MAX_AUTO,
+            Math.max(MIN_AUTO, state.autoSpinCount)
+          );
+        }
+      } catch {}
+    }
+
+    function getCurrentBetPerLine() {
+      return inFreeSpins ? bonusBetPerLine : betPerLine;
+    }
+
+    function getCurrentLines() {
+      return inFreeSpins ? bonusLines : activeLines;
+    }
 
     function updateCredits() {
       creditsEl.textContent = credits;
@@ -257,13 +558,45 @@
       fsCountEl.textContent = freeSpins;
     }
 
-    function setMessage(text) {
+    function updateLastWin() {
+      lastWinEl.textContent = lastWin;
+    }
+
+    function updateBetDisplay() {
+      betPerLineEl.textContent = betPerLine;
+      totalBetEl.textContent = betPerLine * activeLines;
+    }
+
+    function updateLinesDisplay() {
+      linesCountEl.textContent = activeLines;
+      infoLinesEl.textContent = activeLines;
+      totalBetEl.textContent = betPerLine * activeLines;
+    }
+
+    function updateAutoCountDisplay() {
+      autoCountEl.textContent = autoSpinCount;
+    }
+
+    function updateAutoLabel() {
+      autoBtn.textContent =
+        autoSpinsLeft > 0 ? `AUTO (${autoSpinsLeft})` : "AUTO";
+    }
+
+    function setMessage(text, type = "normal") {
       messageEl.textContent = text;
+      messageEl.className = "message";
+      if (type && type !== "normal") {
+        messageEl.classList.add(`message--${type}`);
+      }
     }
 
     function randomSymbol() {
-      const i = Math.floor(Math.random() * symbols.length);
-      return symbols[i];
+      let r = Math.random() * TOTAL_WEIGHT;
+      for (const entry of WEIGHTED_SYMBOLS) {
+        if (r < entry.weight) return entry.symbol;
+        r -= entry.weight;
+      }
+      return WEIGHTED_SYMBOLS[0].symbol;
     }
 
     function setSlotImage(slotIndex, symbol) {
@@ -272,169 +605,475 @@
       img.alt = symbol.name;
     }
 
-    function clearWins() {
-      const imgs = document.querySelectorAll(".slot-cell img");
-      imgs.forEach(img => img.classList.remove("win"));
+    function clearPaylines() {
+      if (paylinesSvg) {
+        paylinesSvg.innerHTML = "";
+      }
     }
 
-    function markIndices(indices) {
-      indices.forEach(index => {
+    function clearWins() {
+      const imgs = document.querySelectorAll(".slot-cell img");
+      imgs.forEach((img) => {
+        img.classList.remove("win");
+        img.style.removeProperty("--win-color");
+      });
+      clearPaylines();
+    }
+
+    function markIndices(indices, color) {
+      indices.forEach((index) => {
         const img = document.getElementById(`slot-${index}`);
         img.classList.add("win");
+        if (color) {
+          img.style.setProperty("--win-color", color);
+        }
       });
     }
 
-    function spinOnce() {
-      // costo spin
-      if (!inFreeSpins) {
-        if (credits < spinCost) {
-          setMessage("Niente più crediti! 😭");
+    function getSlotCenter(index) {
+      const img = document.getElementById(`slot-${index}`);
+      const imgRect = img.getBoundingClientRect();
+      const contRect = slotContainer.getBoundingClientRect();
+      return {
+        x: imgRect.left - contRect.left + imgRect.width / 2,
+        y: imgRect.top - contRect.top + imgRect.height / 2
+      };
+    }
+
+    function drawPaylines(lines) {
+      clearPaylines();
+      if (!lines.length) return;
+
+      const width = slotContainer.clientWidth;
+      const height = slotContainer.clientHeight;
+      const svgNS = "http://www.w3.org/2000/svg";
+
+      paylinesSvg.setAttribute("width", width);
+      paylinesSvg.setAttribute("height", height);
+      paylinesSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      lines.forEach((line) => {
+        const poly = document.createElementNS(svgNS, "polyline");
+        const points = line.lineSlots
+          .map((i) => {
+            const c = getSlotCenter(i);
+            return `${c.x},${c.y}`;
+          })
+          .join(" ");
+        poly.setAttribute("points", points);
+        poly.setAttribute("stroke", line.color || "#ffd700");
+        poly.setAttribute("stroke-width", "4");
+        poly.setAttribute("fill", "none");
+        poly.setAttribute("stroke-linecap", "round");
+        poly.setAttribute("stroke-linejoin", "round");
+        poly.setAttribute("stroke-dasharray", "9 6");
+        paylinesSvg.appendChild(poly);
+      });
+    }
+
+    // animazione rulli
+    function spinAnimation(finalSymbols, onComplete) {
+      const columns = [
+        [0, 5, 10],
+        [1, 6, 11],
+        [2, 7, 12],
+        [3, 8, 13],
+        [4, 9, 14]
+      ];
+      let finishedColumns = 0;
+      const steps = 4;
+      const stepDuration = 120;
+
+      columns.forEach((indices, colIndex) => {
+        const startDelay = colIndex * 140;
+        setTimeout(() => {
+          let step = 0;
+          const interval = setInterval(() => {
+            indices.forEach((i) => setSlotImage(i, randomSymbol()));
+            step++;
+            if (step >= steps) {
+              clearInterval(interval);
+              indices.forEach((i) => setSlotImage(i, finalSymbols[i]));
+              finishedColumns++;
+              if (finishedColumns === columns.length) {
+                onComplete();
+              }
+            }
+          }, stepDuration);
+        }, startDelay);
+      });
+    }
+
+    // ---- LOGICA DI GIOCO -----------------------------------------------
+
+    function spinOnce(fromAuto = false) {
+      // se bonus finito, torna a base
+      if (inFreeSpins && freeSpins <= 0) {
+        inFreeSpins = false;
+        updateMode();
+      }
+
+      if (fromAuto && !inFreeSpins) {
+        if (autoSpinsLeft <= 0) {
+          updateAutoLabel();
           return;
         }
-        credits -= spinCost;
+        autoSpinsLeft--;
+        updateAutoLabel();
+      }
+
+      const currentBetPerLine = getCurrentBetPerLine();
+      const currentLines = getCurrentLines();
+      const wasFreeSpin = inFreeSpins;
+
+      let betTotal = 0;
+
+      if (!wasFreeSpin) {
+        betTotal = currentBetPerLine * currentLines;
+        if (credits < betTotal) {
+          setMessage("Non hai abbastanza crediti per questa puntata.", "error");
+          autoSpinsLeft = 0;
+          updateAutoLabel();
+          return;
+        }
+        credits -= betTotal;
+        updateCredits();
+        saveState();
       } else {
-        if (freeSpins <= 0) {
-          // sicurezza: se per qualche motivo è 0, esci dal bonus
-          inFreeSpins = false;
-        } else {
+        if (freeSpins > 0) {
           freeSpins--;
         }
       }
 
-      updateCredits();
       updateMode();
       setMessage("");
       clearWins();
 
       spinBtn.disabled = true;
+      autoBtn.disabled = true;
 
-      const resultSymbols = [];
-
-      // Riempi i 15 slot (3x5) con simboli random
+      const finalSymbols = [];
       for (let i = 0; i < TOTAL_SLOTS; i++) {
-        const s = randomSymbol();
-        resultSymbols.push(s);
-        setSlotImage(i, s);
+        finalSymbols.push(randomSymbol());
       }
 
-      setTimeout(() => {
-        let totalWin = 0;
-        const lineWins = [];
-        let scatterCount = 0;
-        const scatterIndices = [];
+      spinAnimation(finalSymbols, () => {
+        evaluateResult(
+          finalSymbols,
+          betTotal,
+          currentBetPerLine,
+          currentLines,
+          wasFreeSpin
+        );
+        spinBtn.disabled = false;
+        autoBtn.disabled = false;
 
-        // Conta gli scatter
-        resultSymbols.forEach((sym, idx) => {
-          if (sym.isScatter) {
-            scatterCount++;
-            scatterIndices.push(idx);
+        if (autoSpinsLeft > 0 && !inFreeSpins) {
+          const nextBet = betPerLine * activeLines;
+          if (credits >= nextBet) {
+            setTimeout(() => spinOnce(true), 450);
+          } else {
+            autoSpinsLeft = 0;
+            updateAutoLabel();
+            setMessage(
+              "Auto-spin fermato: crediti insufficienti.",
+              "error"
+            );
           }
-        });
+        }
+      });
+    }
 
-        // Controlla tutte le 10 paylines
-        for (const line of PAYLINES) {
-          const [firstIndex, ...rest] = line.slots;
-          const firstSym = resultSymbols[firstIndex];
+    function evaluateResult(
+      resultSymbols,
+      betTotal,
+      currentBetPerLine,
+      currentLines,
+      wasFreeSpin
+    ) {
+      let totalWinBase = 0;
+      lastWin = 0;
+      const lineWins = [];
 
-          // una linea paga solo se:
-          // - il simbolo NON è lo scatter
-          // - tutti i 5 simboli sono uguali e NON scatter
-          if (firstSym.isScatter) {
-            continue;
-          }
+      const baseTotalBet = currentBetPerLine * currentLines;
 
-          const isWin = rest.every(idx => {
-            const sym = resultSymbols[idx];
-            return !sym.isScatter && sym.name === firstSym.name;
-          });
+      // scatter
+      let scatterCount = 0;
+      const scatterIndices = [];
+      resultSymbols.forEach((sym, idx) => {
+        if (sym.isScatter) {
+          scatterCount++;
+          scatterIndices.push(idx);
+        }
+      });
 
-          if (isWin) {
-            totalWin += line.payout;
+      // linee
+      for (let li = 0; li < currentLines; li++) {
+        const line = PAYLINES[li];
+        const indices = line.slots;
+        const firstSym = resultSymbols[indices[0]];
+        if (firstSym.isScatter) continue;
+
+        let count = 1;
+        for (let i = 1; i < indices.length; i++) {
+          const sym = resultSymbols[indices[i]];
+          if (sym.isScatter || sym.name !== firstSym.name) break;
+          count++;
+        }
+
+        if (count >= 3) {
+          const mult = OF_A_KIND_MULT[count] || 0;
+          if (mult > 0) {
+            const winAmount = mult * currentBetPerLine;
+            totalWinBase += winAmount;
+            const color = LINE_COLORS[li % LINE_COLORS.length];
             lineWins.push({
               lineName: line.name,
-              payout: line.payout,
               symbol: firstSym.name,
-              slots: line.slots
+              count,
+              mult,
+              winAmount,
+              winSlots: indices.slice(0, count),
+              lineSlots: indices,
+              color
             });
           }
         }
+      }
 
-        // Payout scatter + attivazione bonus
-        let scatterWin = 0;
-        let bonusText = "";
-
-        if (scatterCount >= FREE_SPIN_TRIGGER) {
-          const key = scatterCount >= 5 ? 5 : scatterCount;
-          scatterWin = SCATTER_PAYOUT[key] || 0;
-          totalWin += scatterWin;
-
-          // assegna / retriggera free spin
-          freeSpins += FREE_SPIN_AWARD;
-          inFreeSpins = true;
-          bonusText = `Bonus! ${scatterCount} scatter: +${scatterWin} crediti e +${FREE_SPIN_AWARD} free spin 🎁`;
+      // payout scatter + bonus
+      let scatterWinBase = 0;
+      let bonusText = "";
+      if (scatterCount >= FREE_SPIN_TRIGGER) {
+        const key = scatterCount >= 5 ? 5 : scatterCount;
+        const scatterMult = SCATTER_PAYOUT[key] || 0;
+        if (scatterMult > 0) {
+          scatterWinBase = scatterMult * baseTotalBet;
+          totalWinBase += scatterWinBase;
         }
 
-        // Moltiplicatore in modalità bonus
-        if (inFreeSpins && totalWin > 0) {
-          totalWin *= FREE_SPIN_MULTIPLIER;
-        }
+        freeSpins += FREE_SPIN_AWARD;
+        inFreeSpins = true;
+        bonusBetPerLine = currentBetPerLine;
+        bonusLines = currentLines;
+        autoSpinsLeft = 0;
+        updateAutoLabel();
 
-        // paga le vincite
-        if (totalWin > 0) {
-          credits += totalWin;
-        }
+        bonusText = `Bonus! ${scatterCount} scatter: ${scatterMult}× puntata totale (+${scatterWinBase}) e +${FREE_SPIN_AWARD} free spin 🎁`;
+      }
 
+      // moltiplicatore free spin
+      let totalWin = totalWinBase;
+      if (wasFreeSpin && totalWinBase > 0) {
+        totalWin = totalWinBase * FREE_SPIN_MULTIPLIER;
+      }
+
+      if (totalWin > 0) {
+        credits += totalWin;
         updateCredits();
-        updateMode();
+        saveState();
+      }
 
-        // evidenzia linee vincenti
-        lineWins.forEach(w => markIndices(w.slots));
+      lastWin = totalWin;
+      updateLastWin();
+      updateMode();
 
-        // evidenzia scatter
+      // evidenzia linee e scatter
+      lineWins.forEach((w) => markIndices(w.winSlots, w.color));
+      drawPaylines(lineWins);
+
+      if (scatterCount >= FREE_SPIN_TRIGGER) {
+        markIndices(scatterIndices, "#ff9f1c");
+      }
+
+      // messaggio
+      if (totalWin > 0) {
+        const parts = [];
+        if (lineWins.length > 0) {
+          const text = lineWins
+            .map(
+              (w) =>
+                `${w.lineName} – ${w.count} di ${w.symbol} (${w.mult}× → +${w.winAmount})`
+            )
+            .join(" | ");
+          parts.push(text);
+        }
         if (scatterCount >= FREE_SPIN_TRIGGER) {
-          markIndices(scatterIndices);
+          parts.push(bonusText);
         }
 
-        // messaggio finale
-        if (totalWin > 0) {
-          const parts = [];
-
-          if (lineWins.length > 0) {
-            const linesText = lineWins.map(w =>
-              `${w.lineName} con ${w.symbol} (+${w.payout})`
-            );
-            parts.push(linesText.join(" | "));
-          }
-
-          if (scatterCount >= FREE_SPIN_TRIGGER) {
-            parts.push(bonusText);
-          }
-
-          let msg = `WIN! ${parts.join(" • ")} – Totale: +${totalWin} crediti`;
-          if (inFreeSpins) {
-            msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
-          }
-          setMessage(msg);
-        } else {
-          if (inFreeSpins) {
-            setMessage(`Free spin senza vincita. Free spin rimasti: ${freeSpins}`);
-          } else {
-            setMessage("Nessuna combinazione… ritenta 😈");
-          }
+        let type = "win";
+        let label = "WIN!";
+        const refBet = baseTotalBet || betPerLine * activeLines;
+        if (totalWin >= refBet * 10) {
+          type = "bigwin";
+          label = "MEGA WIN!";
+        } else if (totalWin >= refBet * 5) {
+          type = "nice";
+          label = "BIG WIN!";
         }
 
-        // Se abbiamo appena finito i free spin, esci dal bonus
-        if (inFreeSpins && freeSpins === 0) {
+        let msg = `${label} ${parts.join(
+          " • "
+        )} – Totale: +${totalWin} crediti`;
+        if (wasFreeSpin && totalWinBase > 0) {
+          msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
+        }
+        setMessage(msg, type);
+      } else {
+        if (wasFreeSpin && freeSpins > 0) {
+          setMessage(
+            `Free spin senza vincita. Free spin rimasti: ${freeSpins}`
+          );
+        } else if (wasFreeSpin && freeSpins === 0) {
           inFreeSpins = false;
           updateMode();
-          messageEl.textContent += " | Fine modalità bonus, si torna al gioco base.";
+          setMessage("Fine modalità bonus, si torna al gioco base.");
+        } else {
+          setMessage("Nessuna combinazione sulle linee attive… ritenta 😈");
         }
-
-        spinBtn.disabled = false;
-      }, 300);
+      }
     }
 
-    spinBtn.addEventListener("click", spinOnce);
+    // ---- EVENTI ---------------------------------------------------------
+
+    betMinusBtn.addEventListener("click", () => {
+      if (inFreeSpins) {
+        setMessage(
+          "Non puoi cambiare la puntata durante i free spin.",
+          "error"
+        );
+        return;
+      }
+      if (betPerLine > MIN_BET_PER_LINE) {
+        betPerLine--;
+        updateBetDisplay();
+        saveState();
+      }
+    });
+
+    betPlusBtn.addEventListener("click", () => {
+      if (inFreeSpins) {
+        setMessage(
+          "Non puoi cambiare la puntata durante i free spin.",
+          "error"
+        );
+        return;
+      }
+      if (betPerLine < MAX_BET_PER_LINE) {
+        betPerLine++;
+        updateBetDisplay();
+        saveState();
+      }
+    });
+
+    linesMinusBtn.addEventListener("click", () => {
+      if (inFreeSpins) {
+        setMessage(
+          "Non puoi cambiare le linee durante i free spin.",
+          "error"
+        );
+        return;
+      }
+      if (activeLines > MIN_LINES) {
+        activeLines--;
+        updateLinesDisplay();
+        saveState();
+      }
+    });
+
+    linesPlusBtn.addEventListener("click", () => {
+      if (inFreeSpins) {
+        setMessage(
+          "Non puoi cambiare le linee durante i free spin.",
+          "error"
+        );
+        return;
+      }
+      if (activeLines < MAX_LINES) {
+        activeLines++;
+        updateLinesDisplay();
+        saveState();
+      }
+    });
+
+    autoMinusBtn.addEventListener("click", () => {
+      if (autoSpinCount > MIN_AUTO) {
+        autoSpinCount -= AUTO_STEP;
+        updateAutoCountDisplay();
+        saveState();
+      }
+    });
+
+    autoPlusBtn.addEventListener("click", () => {
+      if (autoSpinCount < MAX_AUTO) {
+        autoSpinCount += AUTO_STEP;
+        updateAutoCountDisplay();
+        saveState();
+      }
+    });
+
+    spinBtn.addEventListener("click", () => {
+      autoSpinsLeft = 0;
+      updateAutoLabel();
+      spinOnce(false);
+    });
+
+    autoBtn.addEventListener("click", () => {
+      if (inFreeSpins) {
+        setMessage(
+          "Non puoi avviare l'auto-spin durante i free spin.",
+          "error"
+        );
+        return;
+      }
+      if (autoSpinsLeft > 0) {
+        autoSpinsLeft = 0;
+        updateAutoLabel();
+        setMessage("Auto-spin fermato.");
+      } else {
+        autoSpinsLeft = autoSpinCount;
+        updateAutoLabel();
+        spinOnce(true);
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      credits = 1000;
+      betPerLine = 1;
+      activeLines = TOTAL_LINES;
+      autoSpinCount = 10;
+      autoSpinsLeft = 0;
+      lastWin = 0;
+      inFreeSpins = false;
+      freeSpins = 0;
+      bonusBetPerLine = 1;
+      bonusLines = TOTAL_LINES;
+      clearWins();
+      updateCredits();
+      updateBetDisplay();
+      updateLinesDisplay();
+      updateLastWin();
+      updateAutoCountDisplay();
+      updateMode();
+      updateAutoLabel();
+      saveState();
+      setMessage("Crediti, linee e puntata resettati.");
+    });
+
+    // ---- INIT -----------------------------------------------------------
+
+    loadState();
+    updateCredits();
+    updateBetDisplay();
+    updateLinesDisplay();
+    updateLastWin();
+    updateAutoCountDisplay();
+    updateMode();
+    updateAutoLabel();
+    setMessage(
+      "Slot 3×5 con scatter e 10 linee. Scegli linee, puntata e numero di auto-spin, poi schiaccia SPIN!"
+    );
   </script>
 </body>
 </html>
