@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Slot 3x5 – Bonus Free Spin</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      text-align: center;
+    }
+
+    .slot-container {
+      display: grid;
+      grid-template-columns: repeat(5, 110px); /* 5 colonne */
+      grid-template-rows: repeat(3, 110px);    /* 3 righe */
+      gap: 8px;
+      padding: 12px;
+      background: #222;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      margin-bottom: 1rem;
+    }
+
+    .slot-cell {
+      width: 110px;
+      height: 110px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, outline 0.15s ease;
+    }
+
+    /* evidenzia simboli vincenti */
+    .slot-cell img.win {
+      transform: scale(1.05);
+      outline: 3px solid #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      padding: 0.5rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #5865F2;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    .credits, .message, .freespins {
+      font-size: 0.9rem;
+    }
+
+    .freespins {
+      opacity: 0.9;
+    }
+
+    .message {
+      min-height: 1.4rem;
+      max-width: 480px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Discord Slot 3x5</h1>
+  <p>10 linee di pagamento + Scatter con bonus Free Spin 🎰</p>
+
+  <div class="slot-container">
+    <!-- 3 righe x 5 colonne = 15 slot (id da 0 a 14) -->
+    <div class="slot-cell"><img id="slot-0"  src="img/user1.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-1"  src="img/user2.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-2"  src="img/user3.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-3"  src="img/user4.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-4"  src="img/user5.png" alt="" /></div>
+
+    <div class="slot-cell"><img id="slot-5"  src="img/user6.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-6"  src="img/user7.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-7"  src="img/user8.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-8"  src="img/user9.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-9"  src="img/user10.png" alt="" /></div>
+
+    <div class="slot-cell"><img id="slot-10" src="img/user1.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-11" src="img/user2.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-12" src="img/user3.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-13" src="img/user4.png" alt="" /></div>
+    <div class="slot-cell"><img id="slot-14" src="img/user5.png" alt="" /></div>
+  </div>
+
+  <div class="controls">
+    <div class="credits">Crediti: <span id="credits">50</span></div>
+    <div class="freespins">
+      Modalità: <span id="mode">Base</span> |
+      Free spin: <span id="fs-count">0</span>
+    </div>
+    <button id="spinBtn">SPIN</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    // Membri (metti le tue immagini)
+    const members = [
+      { name: "User1",  img: "img/user1.png"  },
+      { name: "User2",  img: "img/user2.png"  },
+      { name: "User3",  img: "img/user3.png"  },
+      { name: "User4",  img: "img/user4.png"  },
+      { name: "User5",  img: "img/user5.png"  },
+      { name: "User6",  img: "img/user6.png"  },
+      { name: "User7",  img: "img/user7.png"  },
+      { name: "User8",  img: "img/user8.png"  },
+      { name: "User9",  img: "img/user9.png"  },
+      { name: "User10", img: "img/user10.png" }
+    ];
+
+    // 🔹 SCATTER (es: logo del server)
+    const SCATTER = {
+      name: "SCATTER",
+      img: "img/scatter.png",
+      isScatter: true
+    };
+
+    // Tutti i simboli disponibili sui rulli
+    const symbols = [...members, SCATTER];
+
+    const ROWS = 3;
+    const COLS = 5;
+    const TOTAL_SLOTS = ROWS * COLS; // 15
+
+    // 🔹 10 PAYLINES (ognuna è una sequenza di 5 indici)
+    // Griglia:
+    // riga 0:  0  1  2  3  4
+    // riga 1:  5  6  7  8  9
+    // riga 2: 10 11 12 13 14
+    const PAYLINES = [
+      {
+        name: "Linea alta",
+        slots: [0, 1, 2, 3, 4],
+        payout: 5
+      },
+      {
+        name: "Linea centrale",
+        slots: [5, 6, 7, 8, 9],
+        payout: 10
+      },
+      {
+        name: "Linea bassa",
+        slots: [10, 11, 12, 13, 14],
+        payout: 5
+      },
+      {
+        name: "Diag V ↘↗",
+        slots: [0, 6, 12, 8, 4],
+        payout: 15
+      },
+      {
+        name: "Diag V ↗↘",
+        slots: [10, 6, 2, 8, 14],
+        payout: 15
+      },
+      {
+        name: "Zigzag alto",
+        slots: [0, 6, 7, 8, 4],  // [0,1,1,1,0]
+        payout: 8
+      },
+      {
+        name: "Zigzag basso",
+        slots: [10, 6, 7, 8, 14], // [2,1,1,1,2]
+        payout: 8
+      },
+      {
+        name: "M-shape 1",
+        slots: [5, 1, 7, 13, 9],  // [1,0,1,2,1]
+        payout: 12
+      },
+      {
+        name: "M-shape 2",
+        slots: [5, 11, 7, 3, 9],  // [1,2,1,0,1]
+        payout: 12
+      },
+      {
+        name: "W-shape",
+        slots: [0, 11, 2, 13, 4], // [0,2,0,2,0]
+        payout: 20
+      }
+    ];
+
+    // 🔹 PAGAMENTI SCATTER (ovunque sui 15 rulli)
+    const SCATTER_PAYOUT = {
+      3: 5,
+      4: 15,
+      5: 30
+    };
+
+    // 🔹 PARAMETRI BONUS FREE SPIN
+    const FREE_SPIN_TRIGGER = 3;   // da 3 scatter in su
+    const FREE_SPIN_AWARD = 8;     // free spin assegnati ogni volta
+    const FREE_SPIN_MULTIPLIER = 2; // tutte le vincite x2 in bonus
+
+    let credits = 50;
+    const spinCost = 1;
+
+    let inFreeSpins = false;
+    let freeSpins = 0;
+
+    const creditsEl = document.getElementById("credits");
+    const messageEl = document.getElementById("message");
+    const spinBtn = document.getElementById("spinBtn");
+    const modeEl = document.getElementById("mode");
+    const fsCountEl = document.getElementById("fs-count");
+
+    function updateCredits() {
+      creditsEl.textContent = credits;
+    }
+
+    function updateMode() {
+      modeEl.textContent = inFreeSpins ? "Bonus (Free Spin)" : "Base";
+      fsCountEl.textContent = freeSpins;
+    }
+
+    function setMessage(text) {
+      messageEl.textContent = text;
+    }
+
+    function randomSymbol() {
+      const i = Math.floor(Math.random() * symbols.length);
+      return symbols[i];
+    }
+
+    function setSlotImage(slotIndex, symbol) {
+      const img = document.getElementById(`slot-${slotIndex}`);
+      img.src = symbol.img;
+      img.alt = symbol.name;
+    }
+
+    function clearWins() {
+      const imgs = document.querySelectorAll(".slot-cell img");
+      imgs.forEach(img => img.classList.remove("win"));
+    }
+
+    function markIndices(indices) {
+      indices.forEach(index => {
+        const img = document.getElementById(`slot-${index}`);
+        img.classList.add("win");
+      });
+    }
+
+    function spinOnce() {
+      // costo spin
+      if (!inFreeSpins) {
+        if (credits < spinCost) {
+          setMessage("Niente più crediti! 😭");
+          return;
+        }
+        credits -= spinCost;
+      } else {
+        if (freeSpins <= 0) {
+          // sicurezza: se per qualche motivo è 0, esci dal bonus
+          inFreeSpins = false;
+        } else {
+          freeSpins--;
+        }
+      }
+
+      updateCredits();
+      updateMode();
+      setMessage("");
+      clearWins();
+
+      spinBtn.disabled = true;
+
+      const resultSymbols = [];
+
+      // Riempi i 15 slot (3x5) con simboli random
+      for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const s = randomSymbol();
+        resultSymbols.push(s);
+        setSlotImage(i, s);
+      }
+
+      setTimeout(() => {
+        let totalWin = 0;
+        const lineWins = [];
+        let scatterCount = 0;
+        const scatterIndices = [];
+
+        // Conta gli scatter
+        resultSymbols.forEach((sym, idx) => {
+          if (sym.isScatter) {
+            scatterCount++;
+            scatterIndices.push(idx);
+          }
+        });
+
+        // Controlla tutte le 10 paylines
+        for (const line of PAYLINES) {
+          const [firstIndex, ...rest] = line.slots;
+          const firstSym = resultSymbols[firstIndex];
+
+          // una linea paga solo se:
+          // - il simbolo NON è lo scatter
+          // - tutti i 5 simboli sono uguali e NON scatter
+          if (firstSym.isScatter) {
+            continue;
+          }
+
+          const isWin = rest.every(idx => {
+            const sym = resultSymbols[idx];
+            return !sym.isScatter && sym.name === firstSym.name;
+          });
+
+          if (isWin) {
+            totalWin += line.payout;
+            lineWins.push({
+              lineName: line.name,
+              payout: line.payout,
+              symbol: firstSym.name,
+              slots: line.slots
+            });
+          }
+        }
+
+        // Payout scatter + attivazione bonus
+        let scatterWin = 0;
+        let bonusText = "";
+
+        if (scatterCount >= FREE_SPIN_TRIGGER) {
+          const key = scatterCount >= 5 ? 5 : scatterCount;
+          scatterWin = SCATTER_PAYOUT[key] || 0;
+          totalWin += scatterWin;
+
+          // assegna / retriggera free spin
+          freeSpins += FREE_SPIN_AWARD;
+          inFreeSpins = true;
+          bonusText = `Bonus! ${scatterCount} scatter: +${scatterWin} crediti e +${FREE_SPIN_AWARD} free spin 🎁`;
+        }
+
+        // Moltiplicatore in modalità bonus
+        if (inFreeSpins && totalWin > 0) {
+          totalWin *= FREE_SPIN_MULTIPLIER;
+        }
+
+        // paga le vincite
+        if (totalWin > 0) {
+          credits += totalWin;
+        }
+
+        updateCredits();
+        updateMode();
+
+        // evidenzia linee vincenti
+        lineWins.forEach(w => markIndices(w.slots));
+
+        // evidenzia scatter
+        if (scatterCount >= FREE_SPIN_TRIGGER) {
+          markIndices(scatterIndices);
+        }
+
+        // messaggio finale
+        if (totalWin > 0) {
+          const parts = [];
+
+          if (lineWins.length > 0) {
+            const linesText = lineWins.map(w =>
+              `${w.lineName} con ${w.symbol} (+${w.payout})`
+            );
+            parts.push(linesText.join(" | "));
+          }
+
+          if (scatterCount >= FREE_SPIN_TRIGGER) {
+            parts.push(bonusText);
+          }
+
+          let msg = `WIN! ${parts.join(" • ")} – Totale: +${totalWin} crediti`;
+          if (inFreeSpins) {
+            msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
+          }
+          setMessage(msg);
+        } else {
+          if (inFreeSpins) {
+            setMessage(`Free spin senza vincita. Free spin rimasti: ${freeSpins}`);
+          } else {
+            setMessage("Nessuna combinazione… ritenta 😈");
+          }
+        }
+
+        // Se abbiamo appena finito i free spin, esci dal bonus
+        if (inFreeSpins && freeSpins === 0) {
+          inFreeSpins = false;
+          updateMode();
+          messageEl.textContent += " | Fine modalità bonus, si torna al gioco base.";
+        }
+
+        spinBtn.disabled = false;
+      }, 300);
+    }
+
+    spinBtn.addEventListener("click", spinOnce);
+  </script>
+</body>
+</html>
