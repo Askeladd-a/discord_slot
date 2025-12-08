@@ -987,6 +987,68 @@
       return { grid: newGrid, dropDistances, newSymbolFlags };
     }
 
+    function payoutForCount(symbolName, count) {
+      const table = PAYTABLE[symbolName];
+      if (!table) return 0;
+      const thresholds = Object.keys(table)
+        .map(Number)
+        .sort((a, b) => a - b);
+      let matched = 0;
+      thresholds.forEach((t) => {
+        if (count >= t) matched = t;
+      });
+      return matched ? table[matched] : 0;
+    }
+
+    function collectWins(grid) {
+      const counts = new Map();
+      const multiplierIndices = [];
+      let multiplierSum = 0;
+
+      grid.forEach((sym, idx) => {
+        if (sym.isScatter) return;
+        if (sym.isMultiplier) {
+          multiplierIndices.push(idx);
+          multiplierSum += sym.value || 0;
+          return;
+        }
+        if (!counts.has(sym.name)) counts.set(sym.name, []);
+        counts.get(sym.name).push(idx);
+      });
+
+      const wins = [];
+      const removeIndices = new Set();
+      let baseWin = 0;
+
+      counts.forEach((indices, name) => {
+        const payoutMult = payoutForCount(name, indices.length);
+        if (payoutMult > 0) {
+          wins.push({ symbol: name, count: indices.length, payoutMult, indices });
+          indices.forEach((i) => removeIndices.add(i));
+          baseWin += payoutMult;
+        }
+      });
+
+      return { wins, removeIndices, baseWin, multiplierSum, multiplierIndices };
+    }
+
+    function applyTumble(grid, removeSet) {
+      const newGrid = [...grid];
+      for (let c = 0; c < COLS; c++) {
+        const kept = [];
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          if (!removeSet.has(idx)) kept.push(grid[idx]);
+        }
+        while (kept.length < ROWS) kept.push(randomSymbol());
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          newGrid[idx] = kept[ROWS - 1 - r];
+        }
+      }
+      return newGrid;
+    }
+
     // animazione rulli
     function spinAnimation(finalSymbols, onComplete) {
       const columns = [];
