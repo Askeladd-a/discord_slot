@@ -8,16 +8,16 @@ const confirmSpins = Number(args[2]) || 100000;
 
 // base symbols
 const members = [];
-for (let i=1;i<=10;i++) members.push({name:`User${i}`} );
+for (let i=1;i<=12;i++) members.push({name:`User${i}`} );
 const SCATTER = {name:'SCATTER', isScatter:true};
 const WILD = {name:'WILD', isWild:true};
 const MULT = {name:'MULT', isMultiplier:true};
 
-const ROWS=3, COLS=5, TOTAL_SLOTS=ROWS*COLS;
+const ROWS=5, COLS=6, TOTAL_SLOTS=ROWS*COLS;
 const PAYLINES = [
   {slots:[5,6,7,8,9]},{slots:[0,1,2,3,4]},{slots:[10,11,12,13,14]},{slots:[0,6,12,8,4]},{slots:[10,6,2,8,14]}
 ];
-const TOTAL_LINES = 25; // index.html uses 25 paylines in UI; for sweep we'll use TOTAL_LINES from index (simulate with 25 lines)
+const TOTAL_LINES = 30; // legacy UI total-bet approximation for pay-anywhere (6x5 ~ 30 positions)
 
 const SYMBOL_PAYOUTS = {
   User1: {3:4.00,4:8.00,5:50.00},
@@ -31,7 +31,7 @@ const SYMBOL_PAYOUTS = {
   User9: {3:0.50,4:0.80,5:3.00},
   User10:{3:0.50,4:0.80,5:3.00}
 };
-const BASE_SCATTER_PAYOUT = {3:5,4:15,5:30};
+const BASE_SCATTER_PAYOUT = {3:5*5,4:15*5,5:30*5};
 const FREE_SPIN_AWARDS = {3:10,4:20,5:50};
 
 function makeWeighted(weights) {
@@ -91,28 +91,22 @@ function evaluatePayout(resultSymbols, lines, multValue) {
     const multCount = indices.filter(i=> resultSymbols[i].isMultiplier).length;
     const lineMultiplier = multCount>0 ? Math.pow(multValue, multCount) : 1;
 
-    const candidates = [WILD, ...members];
-    let bestLineWin = 0;
-    candidates.forEach(cand=>{
-      const isWild = !!cand.isWild;
-      let count = 0;
-      for (let pos=0; pos<5; pos++) {
-        const sym = lineSyms[pos];
-        if (sym.isScatter || sym.isMultiplier) break;
-        if (!isWild) {
-          if (!(sym.name === cand.name || sym.isWild)) break;
-        } else {
-          if (!sym.isWild) break;
-        }
-        count++;
-      }
-      if (count>=3) {
-        const base = isWild ? (SYMBOL_PAYOUTS['User1'] && SYMBOL_PAYOUTS['User1'][count]||0) : ((SYMBOL_PAYOUTS[cand.name] && SYMBOL_PAYOUTS[cand.name][count])||0);
-        const lineWin = base * lineMultiplier;
-        if (lineWin>bestLineWin) bestLineWin = lineWin;
-      }
+    // simplified pay-anywhere check: count naturals + wilds as jokers for central proxies
+    const naturalCounts = {};
+    let wildCount = 0;
+    lineSyms.forEach(s => {
+      if (s.isScatter || s.isMultiplier) return;
+      if (s.isWild) { wildCount++; return; }
+      naturalCounts[s.name] = (naturalCounts[s.name] || 0) + 1;
     });
-    if (bestLineWin>0) totalWinBase += bestLineWin;
+    Object.keys(naturalCounts).forEach(name => {
+      const natural = naturalCounts[name];
+      const effective = natural + wildCount;
+      if (effective < 3) return;
+      const pk = effective >=5 ? 5 : effective;
+      const base = (SYMBOL_PAYOUTS[name] && SYMBOL_PAYOUTS[name][pk]) || 0;
+      if (base>0) totalWinBase += base * lineMultiplier;
+    });
   }
 
   if (scatterCount>=3) {
@@ -132,7 +126,7 @@ function quickEvaluateConfig(wildW, multW, scatterW, memberW, multValue, spins) 
     const symbols = randomFinalSymbolsFromWeighted(weighted, total);
     const win = evaluatePayout(symbols, 1, multValue);
     totalWin += win;
-    totalBet += 1 * 25; // use 25 lines by default
+    totalBet += 1 * TOTAL_LINES; // approximate total bet using TOTAL_LINES
   }
   return { totalBet, totalWin, rtp: totalWin/totalBet };
 }

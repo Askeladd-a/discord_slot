@@ -6,7 +6,7 @@
   <title>Discord Slot – 10 Linee Wild / Scatter / Multi</title>
   <style>
     :root {
-      --cell-size: min(24vw, 150px);
+      --cell-size: min(14vw, 110px);
       --bg: #050608;
       --card-bg: #1f2027;
       --card-border: #2a2b33;
@@ -72,8 +72,8 @@
 
     .slot-container {
       display: grid;
-      grid-template-columns: repeat(5, var(--cell-size));
-      grid-template-rows: repeat(3, var(--cell-size));
+      grid-template-columns: repeat(6, var(--cell-size));
+      grid-template-rows: repeat(5, var(--cell-size));
       gap: 10px;
       padding: 14px;
       background: linear-gradient(180deg,#0f1116,#0b0c11);
@@ -409,32 +409,49 @@
   </style>
 </head>
 <body>
-  <h1>Discord Slot – 10 Linee Wild / Scatter / Multi</h1>
+  <h1>Discord Slot – Ispirata a Gates Of Olympus (6×5 Pay-Anywhere)</h1>
   <p class="subtitle">
-    3×5 con fino a 10 linee, wild che sostituisce, scatter con free spin e multipliers sulle linee ⚡
+    Griglia 6×5 pay-anywhere: conta simboli su tutto il pannello, scatter/free spin e moltiplicatori ⚡
   </p>
 
   <div class="slot-wrapper">
     <div class="slot-frame">
       <div class="slot-container">
-        <!-- 3 righe x 5 colonne = 15 slot (0–14) -->
+        <!-- 5 righe x 6 colonne = 30 slot (0–29) -->
         <div class="slot-cell"><img id="slot-0" src="img/user1.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-1" src="img/user2.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-2" src="img/user3.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-3" src="img/user4.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-4" src="img/user5.png" alt="" /></div>
-
         <div class="slot-cell"><img id="slot-5" src="img/user6.png" alt="" /></div>
+
         <div class="slot-cell"><img id="slot-6" src="img/user7.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-7" src="img/user8.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-8" src="img/user9.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-9" src="img/user10.png" alt="" /></div>
-
         <div class="slot-cell"><img id="slot-10" src="img/user1.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-11" src="img/user2.png" alt="" /></div>
+
         <div class="slot-cell"><img id="slot-12" src="img/user3.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-13" src="img/user4.png" alt="" /></div>
         <div class="slot-cell"><img id="slot-14" src="img/user5.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-15" src="img/user6.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-16" src="img/user7.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-17" src="img/user8.png" alt="" /></div>
+
+        <div class="slot-cell"><img id="slot-18" src="img/user9.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-19" src="img/user10.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-20" src="img/user1.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-21" src="img/user2.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-22" src="img/user3.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-23" src="img/user4.png" alt="" /></div>
+
+        <div class="slot-cell"><img id="slot-24" src="img/user5.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-25" src="img/user6.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-26" src="img/user7.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-27" src="img/user8.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-28" src="img/user9.png" alt="" /></div>
+        <div class="slot-cell"><img id="slot-29" src="img/user10.png" alt="" /></div>
       </div>
       <svg id="paylinesSvg" class="paylines-svg"></svg>
     </div>
@@ -515,7 +532,9 @@
       { name: "User7", img: "img/user7.png" },
       { name: "User8", img: "img/user8.png" },
       { name: "User9", img: "img/user9.png" },
-      { name: "User10", img: "img/user10.png" }
+      { name: "User10", img: "img/user10.png" },
+      { name: "User11", img: "img/user11.png" },
+      { name: "User12", img: "img/user12.png" }
     ];
 
     const SCATTER = {
@@ -536,43 +555,13 @@
       isMultiplier: true
     };
 
-    const ROWS = 3;
-    const COLS = 5;
+    const ROWS = 5;
+    const COLS = 6;
     const TOTAL_SLOTS = ROWS * COLS;
 
-    // layout griglia:
-    // riga 0:  0  1  2  3  4
-    // riga 1:  5  6  7  8  9
-    // riga 2: 10 11 12 13 14
-
-    const PAYLINES = [
-      { name: "Linea 1", slots: [5, 6, 7, 8, 9] },
-      { name: "Linea 2", slots: [0, 1, 2, 3, 4] },
-      { name: "Linea 3", slots: [10, 11, 12, 13, 14] },
-      { name: "Linea 4", slots: [0, 6, 12, 8, 4] },
-      { name: "Linea 5", slots: [10, 6, 2, 8, 14] },
-      { name: "Linea 6", slots: [0, 1, 1, 1, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 7", slots: [2, 2, 1, 2, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 8", slots: [1, 0, 0, 0, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 9", slots: [1, 2, 2, 2, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 10", slots: [0, 1, 1, 1, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 11", slots: [2, 1, 1, 1, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 12", slots: [1, 0, 1, 0, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 13", slots: [1, 2, 1, 2, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 14", slots: [0, 1, 0, 1, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 15", slots: [2, 1, 2, 1, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 16", slots: [0, 0, 2, 0, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 17", slots: [2, 2, 0, 2, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 18", slots: [0, 2, 1, 2, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 19", slots: [2, 0, 1, 0, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 20", slots: [1, 0, 2, 0, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 21", slots: [1, 2, 0, 2, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 22", slots: [0, 2, 2, 2, 0].map((r,c)=>r*5+c) },
-      { name: "Linea 23", slots: [2, 0, 0, 0, 2].map((r,c)=>r*5+c) },
-      { name: "Linea 24", slots: [0, 1, 2, 0, 1].map((r,c)=>r*5+c) },
-      { name: "Linea 25", slots: [2, 1, 0, 2, 1].map((r,c)=>r*5+c) }
-    ];
-    const TOTAL_LINES = PAYLINES.length;
+    // for Gates-like behaviour we use pay-anywhere: counts across the whole panel
+    const PAY_ANYWHERE = true;
+    const TOTAL_LINES = 0; // legacy UI value (not used when PAY_ANYWHERE=true)
 
     // per-symbol payouts for 3/4/5 matches (values in currency relative to betPerLine)
     // scaled symbol payouts (tuning applied ×5)
@@ -587,7 +576,9 @@
       User7: {3:0.50*5,4:0.80*5,5:3.00*5},
       User8: {3:0.50*5,4:0.80*5,5:3.00*5},
       User9: {3:0.50*5,4:0.80*5,5:3.00*5},
-        User10:{3:0.50*5,4:0.80*5,5:3.00*5}
+        User10:{3:0.50*5,4:0.80*5,5:3.00*5},
+        User11:{3:0.40*5,4:0.70*5,5:2.50*5},
+        User12:{3:0.40*5,4:0.70*5,5:2.50*5}
     };
 
     // scatter paga sulla puntata totale
@@ -904,13 +895,14 @@
 
     // animazione rulli
     function spinAnimation(finalSymbols, onComplete) {
-      const columns = [
-        [0, 5, 10],
-        [1, 6, 11],
-        [2, 7, 12],
-        [3, 8, 13],
-        [4, 9, 14]
-      ];
+      const columns = [];
+      for (let c = 0; c < COLS; c++) {
+        const colIndices = [];
+        for (let r = 0; r < ROWS; r++) {
+          colIndices.push(r * COLS + c);
+        }
+        columns.push(colIndices);
+      }
       let finishedColumns = 0;
       const steps = turboMode ? 3 : 4;
       const stepDuration = turboMode ? 70 : 120;
@@ -1032,19 +1024,16 @@
       currentLines,
       wasFreeSpin
     ) {
-      // compute wild multiplier sum: for every wild present, add random 1/2/3
+      // pay-anywhere: count occurrences of each symbol across panel
       let wildMultiplierSum = 0;
       resultSymbols.forEach((s) => {
-        if (s.isWild) {
-          wildMultiplierSum += 1 + Math.floor(Math.random() * 3); // 1..3
-        }
+        if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
       });
       const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
 
       let totalWinBase = 0;
       lastWin = 0;
-      const lineWins = [];
-
+      const wins = [];
       const baseTotalBet = currentBetPerLine * currentLines;
 
       // scatter
@@ -1057,94 +1046,45 @@
         }
       });
 
-      // linee con wild e multiplier
-      for (let li = 0; li < currentLines; li++) {
-        const line = PAYLINES[li];
-        const indices = line.slots;
-
-        // simboli su questa linea
-        const lineSyms = indices.map((i) => resultSymbols[i]);
-
-        // multipliers sulla linea
-        const multSlots = indices.filter(
-          (i) => resultSymbols[i].isMultiplier
-        );
-        const multCount = multSlots.length;
-        const lineMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
-
-        // candidati: tutti i membri + wild puro
-        const candidates = [WILD, ...members];
-        let bestLineWin = 0;
-        let bestCount = 0;
-        let bestSymbolName = "";
-        let bestSlots = [];
-
-        candidates.forEach((cand) => {
-          const isCandWild = !!cand.isWild;
-          let count = 0;
-
-          for (let pos = 0; pos < indices.length; pos++) {
-            const sym = lineSyms[pos];
-            if (sym.isScatter || sym.isMultiplier) break;
-
-            if (!isCandWild) {
-              // candidato = simbolo normale
-              if (!(sym.name === cand.name || sym.isWild)) break;
-            } else {
-              // candidato = wild puro
-              if (!sym.isWild) break;
-            }
-            count++;
-          }
-
-            if (count >= 3) {
-              let basePayout = 0;
-              if (isCandWild) {
-                basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][count] || 0 : 0;
-              } else {
-                basePayout = (SYMBOL_PAYOUTS[cand.name] && SYMBOL_PAYOUTS[cand.name][count]) || 0;
-              }
-              if (basePayout > 0) {
-                // basePayout is expressed as multiples relative to 1 unit of betPerLine
-                // multiply by currentBetPerLine so cent bets scale correctly
-                const lineWin = basePayout * lineMultiplier * currentBetPerLine;
-                if (lineWin > bestLineWin) {
-                  bestLineWin = lineWin;
-                  bestCount = count;
-                  bestSymbolName = isCandWild ? "Wild" : cand.name;
-                  bestSlots = indices.slice(0, count);
-                }
-              }
-            }
-        });
-
-        if (bestLineWin > 0) {
-          totalWinBase += bestLineWin;
-          const color = LINE_COLORS[li % LINE_COLORS.length];
-
-          // includi anche i multiplier tra le caselle vincenti
-          const combinedSlots = [
-            ...bestSlots,
-            ...multSlots.filter((i) => !bestSlots.includes(i))
-          ];
-
-          lineWins.push({
-            lineName: line.name,
-            symbol: bestSymbolName,
-            count: bestCount,
-            baseMult: OF_A_KIND_MULT[bestCount],
-            lineMultiplier,
-            winAmount: bestLineWin,
-            winSlots: combinedSlots,
-            lineSlots: indices,
-            color
-          });
+      // count regular symbols (members and wild)
+      // collect natural indices per symbol and wild indices
+      const counts = new Map();
+      const wildIndices = [];
+      resultSymbols.forEach((sym, idx) => {
+        if (sym.isScatter || sym.isMultiplier) return;
+        if (sym.isWild) {
+          wildIndices.push(idx);
+          return;
         }
-      }
+        if (!counts.has(sym.name)) counts.set(sym.name, { count: 0, indices: [] });
+        const ent = counts.get(sym.name);
+        ent.count++;
+        ent.indices.push(idx);
+      });
+
+      // evaluate payouts for each symbol type, allowing wilds to contribute as jokers
+      counts.forEach((info, key) => {
+        const natural = info.count;
+        const effective = natural + wildIndices.length;
+        if (effective < 3) return;
+        const payoutKey = effective >= 5 ? 5 : effective;
+        let basePayout = (SYMBOL_PAYOUTS[key] && SYMBOL_PAYOUTS[key][payoutKey]) || 0;
+        if (basePayout > 0) {
+          const multCount = resultSymbols.filter(s => s.isMultiplier).length;
+          const symbolMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
+          const winAmount = basePayout * symbolMultiplier * currentBetPerLine;
+          totalWinBase += winAmount;
+          // choose indices: natural ones first, then some wild indices if needed
+          const neededFromWild = Math.max(0, payoutKey - natural);
+          const usedWild = wildIndices.slice(0, neededFromWild);
+          const winIndices = [...info.indices.slice(0, payoutKey), ...usedWild].slice(0, payoutKey);
+          wins.push({ symbol: key, count: payoutKey, winAmount, indices: winIndices });
+        }
+      });
 
       // scatter payout + bonus
       let scatterWinBase = 0;
-      let bonusText = "";
+      let bonusText = '';
       if (scatterCount >= FREE_SPIN_TRIGGER) {
         const key = scatterCount >= 5 ? 5 : scatterCount;
         const scatterMult = SCATTER_PAYOUT[key] || 0;
@@ -1152,7 +1092,6 @@
           scatterWinBase = scatterMult * baseTotalBet;
           totalWinBase += scatterWinBase;
         }
-
         const awarded = FREE_SPIN_AWARDS[key] || 0;
         freeSpins = Math.min(50, freeSpins + awarded);
         inFreeSpins = true;
@@ -1160,20 +1099,15 @@
         bonusLines = currentLines;
         autoSpinsLeft = 0;
         updateAutoLabel();
-
         bonusText = `Bonus! ${scatterCount} scatter: ${scatterMult}× puntata totale (+${scatterWinBase}) e +${awarded} free spin 🎁`;
       }
 
-      // moltiplicatore free spin
+      // free spin multiplier
       let totalWin = totalWinBase;
-      if (wasFreeSpin && totalWinBase > 0) {
-        totalWin = totalWinBase * FREE_SPIN_MULTIPLIER;
-      }
+      if (wasFreeSpin && totalWinBase > 0) totalWin = totalWinBase * FREE_SPIN_MULTIPLIER;
 
       if (totalWin > 0) {
-        // apply wild multiplier to totalWin
         const multiplied = totalWin * wildMultiplier;
-        console.debug('Win debug:', { baseTotalBet, totalWinBase, wildMultiplier, multiplied, creditsBefore: credits });
         credits += multiplied;
         totalWin = multiplied;
         updateCredits();
@@ -1184,150 +1118,80 @@
       updateLastWin();
       updateMode();
 
-      // evidenzia linee e scatter
-      lineWins.forEach((w) => markIndices(w.winSlots, w.color));
-      drawPaylines(lineWins);
+      // highlight wins and scatters
+      wins.forEach((w, idx) => markIndices(w.indices, LINE_COLORS[idx % LINE_COLORS.length]));
+      if (scatterCount >= FREE_SPIN_TRIGGER) markIndices(scatterIndices, '#ff9f1c');
 
-      if (scatterCount >= FREE_SPIN_TRIGGER) {
-        markIndices(scatterIndices, "#ff9f1c");
-      }
+      // draw simple outlines for each win (use same structure expected by drawPaylines)
+      const drawLines = wins.map((w, i) => ({ lineSlots: w.indices, color: LINE_COLORS[i % LINE_COLORS.length] }));
+      // In pay-anywhere mode we do not draw connective payline polylines
+      // because wins are groups of cells rather than sequential paylines.
+      // Keep only cell highlighting (markIndices) to avoid the criss-cross lines.
+      if (!PAY_ANYWHERE && drawLines.length) drawPaylines(drawLines);
 
-      // messaggi
+      // messages
       if (totalWin > 0) {
-        const parts = [];
-
-        if (lineWins.length > 0) {
-          const linesText = lineWins
-            .map((w) => {
-              let basePart = `${w.lineName} – ${w.count} di ${w.symbol} (${w.baseMult}×`;
-              if (w.lineMultiplier > 1) {
-                basePart += ` × x${w.lineMultiplier} multi`;
-              }
-              basePart += ` → +${formatCurrency(w.winAmount)})`;
-              return basePart;
-            })
-            .join(" | ");
-          parts.push(linesText);
-        }
-
-        if (scatterCount >= FREE_SPIN_TRIGGER) {
-          parts.push(bonusText);
-        }
-
-        let type = "win";
-        let label = "WIN!";
+        const parts = wins.map(w => `${w.count}× ${w.symbol} → +${formatCurrency(w.winAmount)}`);
+        if (scatterCount >= FREE_SPIN_TRIGGER) parts.push(bonusText);
+        let type = 'win';
+        let label = 'WIN!';
         const refBet = (betPerLine * activeLines) || betTotal || 1;
-
-        if (totalWin >= refBet * 10) {
-          type = "bigwin";
-          label = "MEGA WIN!";
-        } else if (totalWin >= refBet * 5) {
-          type = "nice";
-          label = "BIG WIN!";
-        }
-
-        let msg = `${label} ${parts.join(
-          " • "
-        )} – Totale: +${formatCurrency(totalWin)} crediti`;
-        if (wasFreeSpin && totalWinBase > 0) {
-          msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
-        }
+        if (totalWin >= refBet * 10) { type = 'bigwin'; label = 'MEGA WIN!'; }
+        else if (totalWin >= refBet * 5) { type = 'nice'; label = 'BIG WIN!'; }
+        let msg = `${label} ${parts.join(' • ')} – Totale: +${formatCurrency(totalWin)} crediti`;
+        if (wasFreeSpin && totalWinBase > 0) msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
         setMessage(msg, type);
       } else {
-        if (wasFreeSpin && freeSpins > 0) {
-          setMessage(
-            `Free spin senza vincita. Free spin rimasti: ${freeSpins}`
-          );
-        } else if (wasFreeSpin && freeSpins === 0) {
-          inFreeSpins = false;
-          updateMode();
-          setMessage("Fine modalità bonus, si torna al gioco base.");
-        } else {
-          setMessage("Nessuna combinazione sulle linee attive… ritenta 😈");
-        }
+        if (wasFreeSpin && freeSpins > 0) setMessage(`Free spin senza vincita. Free spin rimasti: ${freeSpins}`);
+        else if (wasFreeSpin && freeSpins === 0) { inFreeSpins = false; updateMode(); setMessage('Fine modalità bonus, si torna al gioco base.'); }
+        else setMessage('Nessuna combinazione… ritenta 😈');
       }
     }
 
     // --- Simulazione (versione headless per RTP estimation)
     function evaluatePayout(resultSymbols, currentBetPerLine, currentLines) {
-      // Restituisce l'ammontare vinto per questa giocata (numero)
+      // pay-anywhere evaluation for headless RTP calc
       let totalWinBase = 0;
-
       const baseTotalBet = currentBetPerLine * currentLines;
 
       // scatter
       let scatterCount = 0;
+      resultSymbols.forEach((sym) => { if (sym.isScatter) scatterCount++; });
+
+      // counts for symbols
+      const counts = new Map();
       resultSymbols.forEach((sym) => {
-        if (sym.isScatter) scatterCount++;
+        if (sym.isScatter || sym.isMultiplier) return;
+        const key = sym.isWild ? 'WILD' : sym.name;
+        counts.set(key, (counts.get(key) || 0) + 1);
       });
 
-      // linee
-      for (let li = 0; li < currentLines; li++) {
-        const line = PAYLINES[li];
-        const indices = line.slots;
-        const lineSyms = indices.map((i) => resultSymbols[i]);
+      counts.forEach((cnt, key) => {
+        if (cnt < 3) return;
+        const payoutKey = cnt >= 5 ? 5 : cnt;
+        let basePayout = 0;
+        if (key === 'WILD') basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][payoutKey] || 0 : 0;
+        else basePayout = (SYMBOL_PAYOUTS[key] && SYMBOL_PAYOUTS[key][payoutKey]) || 0;
+        if (basePayout > 0) {
+          const multCount = resultSymbols.filter(s => s.isMultiplier).length;
+          const symMult = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
+          totalWinBase += basePayout * symMult * currentBetPerLine;
+        }
+      });
 
-        const multSlots = indices.filter((i) => resultSymbols[i].isMultiplier);
-        const multCount = multSlots.length;
-        const lineMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
-
-        const candidates = [WILD, ...members];
-        let bestLineWin = 0;
-
-        candidates.forEach((cand) => {
-          const isCandWild = !!cand.isWild;
-          let count = 0;
-          for (let pos = 0; pos < indices.length; pos++) {
-            const sym = lineSyms[pos];
-            if (sym.isScatter || sym.isMultiplier) break;
-            if (!isCandWild) {
-              if (!(sym.name === cand.name || sym.isWild)) break;
-            } else {
-              if (!sym.isWild) break;
-            }
-            count++;
-          }
-          if (count >= 3) {
-            let basePayout = 0;
-            if (isCandWild) {
-              basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][count] || 0 : 0;
-            } else {
-              basePayout = (SYMBOL_PAYOUTS[cand.name] && SYMBOL_PAYOUTS[cand.name][count]) || 0;
-            }
-            if (basePayout > 0) {
-              // basePayout is expressed relative to 1 unit of betPerLine
-              const lineWin = basePayout * lineMultiplier * currentBetPerLine;
-              if (lineWin > bestLineWin) bestLineWin = lineWin;
-            }
-          }
-        });
-
-        if (bestLineWin > 0) totalWinBase += bestLineWin;
-      }
-
-      // scatter payout
       if (scatterCount >= FREE_SPIN_TRIGGER) {
         const key = scatterCount >= 5 ? 5 : scatterCount;
         const scatterMult = SCATTER_PAYOUT[key] || 0;
-        if (scatterMult > 0) {
-          const scatterWinBase = scatterMult * baseTotalBet;
-          totalWinBase += scatterWinBase;
-        }
+        if (scatterMult > 0) totalWinBase += scatterMult * baseTotalBet;
       }
 
-      // headless: apply wild multipliers (sum 1..3 per wild)
       let wildMultiplierSum = 0;
       resultSymbols.forEach((s) => {
-        if (s.isWild) {
-          wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
-        }
+        if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
       });
       const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
 
-      const total = totalWinBase * wildMultiplier;
-      // debug: return value used by RTP estimation
-      // console.debug('evaluatePayout', { totalWinBase, wildMultiplier, total });
-      return total;
+      return totalWinBase * wildMultiplier;
     }
 
     function randomFinalSymbols() {
@@ -1566,7 +1430,7 @@
     updateMode();
     updateAutoLabel();
     setMessage(
-      "Slot 3×5 con wild, scatter e multiplier. Scegli linee, puntata e auto-spin, poi schiaccia SPIN!"
+      "Slot 6×5 pay-anywhere con wild, scatter e multiplier. Premi SPIN!"
     );
 
     // assicurati che play-bar mostri i valori corretti
