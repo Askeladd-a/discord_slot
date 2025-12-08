@@ -1100,6 +1100,8 @@
         clearWins();
       }
 
+      const finalScatterCount = grid.filter((s) => s.isScatter).length;
+
       if (spinTotal > 0) {
         credits += spinTotal;
         updateCredits();
@@ -1107,8 +1109,8 @@
       }
 
       // scatter trigger after tumbles conclude
-      if (scatterCount >= FREE_SPIN_TRIGGER) {
-        const awarded = 10 + Math.floor(Math.random() * 6); // 10-15 free spin
+      if (!inFreeSpins && finalScatterCount >= FREE_SPIN_TRIGGER) {
+        const awarded = BASE_FREE_SPINS;
         freeSpins = Math.min(100, freeSpins + awarded);
         inFreeSpins = true;
         globalMultiplier = 1;
@@ -1117,7 +1119,13 @@
         autoSpinsLeft = 0;
         updateAutoLabel();
         setMessage(
-          `Bonus attivato! ${scatterCount} scatter → ${awarded} free spin. Moltiplicatore globale attuale: x${globalMultiplier.toFixed(2)}.`,
+          `Bonus attivato! ${finalScatterCount} scatter → ${awarded} free spin. Moltiplicatore globale attuale: x${globalMultiplier.toFixed(2)}.`,
+          "bonus"
+        );
+      } else if (inFreeSpins && finalScatterCount >= RETRIGGER_SCATTERS) {
+        freeSpins = Math.min(100, freeSpins + RETRIGGER_SPINS);
+        setMessage(
+          `Retrigger! ${finalScatterCount} scatter → +${RETRIGGER_SPINS} free spin (totale ${freeSpins}). Moltiplicatore globale: x${globalMultiplier.toFixed(2)}.`,
           "bonus"
         );
       } else if (spinTotal === 0) {
@@ -1134,7 +1142,7 @@
       updateLastWin();
       updateMode();
 
-      if (inFreeSpins && freeSpins <= 0 && scatterCount < FREE_SPIN_TRIGGER) {
+      if (inFreeSpins && freeSpins <= 0 && finalScatterCount < FREE_SPIN_TRIGGER) {
         inFreeSpins = false;
         globalMultiplier = 1;
         updateMode();
@@ -1144,12 +1152,19 @@
     // --- Simulazione (versione headless per RTP estimation)
     function resolveSpinSimulation(currentBetPerLine, currentLines, inBonus = false, startingGlobal = 1) {
       let grid = randomFinalSymbols();
-      const scatterCount = grid.filter((s) => s.isScatter).length;
       let total = 0;
       let globalSim = startingGlobal;
+      let includeScatter = true;
 
       while (true) {
-        const { baseWin, multiplierSum, removeIndices, multiplierIndices } = collectWins(grid);
+        const {
+          baseWin,
+          multiplierSum,
+          removeIndices,
+          multiplierIndices,
+          scatterCount
+        } = collectWins(grid, includeScatter);
+        includeScatter = false;
         if (baseWin <= 0) break;
         let step = baseWin * currentBetPerLine;
         if (multiplierSum > 0) {
