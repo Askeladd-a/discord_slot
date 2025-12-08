@@ -475,10 +475,6 @@
         <span class="info-label">Schema:</span>
         <span id="info-lines">Pay-anywhere</span>
       </div>
-      <div class="info-block">
-        <span class="info-label">RTP simulato:</span>
-        <span id="info-rtp">~96% (20k spin)</span>
-      </div>
     </div>
 
     <!-- compact controls removed to declutter; main actions moved into play-bar for clarity -->
@@ -488,7 +484,7 @@
         <div class="currency">€ <span id="display-credits">0.00</span></div>
         <div class="bet">Puntata base: <button class="step" id="bet-minus">−</button> <span id="bet-per-line" class="value">1.00</span> <button class="step" id="bet-plus">+</button></div>
         <div class="bet">Pay-anywhere</div>
-        <div class="bet">Totale: <span id="total-bet" class="value">1.00</span></div>
+        <div class="bet">Totale: <span id="total-bet" class="value">30.00</span></div>
       </div>
 
       <div class="controls-play">
@@ -559,33 +555,25 @@
 
     // for Gates-like behaviour we use pay-anywhere: counts across the whole panel
     const PAY_ANYWHERE = true;
-    const TOTAL_LINES = 1; // stake unico su schema pay-anywhere
+    const TOTAL_LINES = ROWS * COLS; // usato solo per calcolo puntata totale
 
-    // paytable ufficiale (Gates-style) espresso come multipli della puntata totale
     const PAYTABLE = {
-      User1: { 8: 12, 10: 30, 12: 50 }, // corona
-      User2: { 8: 3, 10: 10, 12: 25 }, // anello
-      User3: { 8: 2.4, 10: 5, 12: 10 }, // clessidra
-      User4: { 8: 1.5, 10: 4, 12: 8 }, // calice
-      User5: { 8: 1, 10: 2.4, 12: 5 }, // gemma rossa
-      User6: { 8: 0.8, 10: 2, 12: 4 }, // gemma gialla
-      User7: { 8: 0.6, 10: 1.5, 12: 3 }, // gemma verde
-      User8: { 8: 0.4, 10: 1, 12: 2.4 }, // gemma blu
-      User9: { 8: 0.4, 10: 1, 12: 2.4 },
-      User10: { 8: 0.4, 10: 1, 12: 2.4 },
-      User11: { 8: 0.4, 10: 1, 12: 2.4 },
-      User12: { 8: 0.4, 10: 1, 12: 2.4 }
+      User1: { 8: 2, 10: 5, 12: 15, 14: 50 },
+      User2: { 8: 1.5, 10: 3, 12: 10, 14: 30 },
+      User3: { 8: 1.5, 10: 3, 12: 10, 14: 30 },
+      User4: { 8: 1, 10: 2, 12: 6, 14: 20 },
+      User5: { 8: 1, 10: 2, 12: 6, 14: 20 },
+      User6: { 8: 0.7, 10: 1.2, 12: 4, 14: 12 },
+      User7: { 8: 0.7, 10: 1.2, 12: 4, 14: 12 },
+      User8: { 8: 0.7, 10: 1.2, 12: 4, 14: 12 },
+      User9: { 8: 0.7, 10: 1.2, 12: 4, 14: 12 },
+      User10: { 8: 0.7, 10: 1.2, 12: 4, 14: 12 },
+      User11: { 8: 0.6, 10: 1, 12: 3, 14: 10 },
+      User12: { 8: 0.6, 10: 1, 12: 3, 14: 10 }
     };
 
-    const SCATTER_PAYOUT = { 4: 60, 5: 100, 6: 200 };
-
     const FREE_SPIN_TRIGGER = 4;
-    const BASE_FREE_SPINS = 15;
-    const RETRIGGER_SCATTERS = 3;
-    const RETRIGGER_SPINS = 5;
-    const MULT_VALUES = [
-      2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 50, 100, 250, 500
-    ];
+    const MULT_VALUES = [2, 3, 4, 5, 10, 25, 50];
 
     // distribuzione simboli (scatter / multiplier più rari)
     const WEIGHTED_SYMBOLS = [];
@@ -886,19 +874,10 @@
       return matched ? table[matched] : 0;
     }
 
-    function payoutForScatter(count) {
-      if (count >= 6) return SCATTER_PAYOUT[6];
-      if (count >= 5) return SCATTER_PAYOUT[5];
-      if (count >= 4) return SCATTER_PAYOUT[4];
-      return 0;
-    }
-
-    function collectWins(grid, includeScatter = true) {
+    function collectWins(grid) {
       const counts = new Map();
       const multiplierIndices = [];
       let multiplierSum = 0;
-      const scatterCount = grid.filter((s) => s.isScatter).length;
-      const scatterWin = includeScatter ? payoutForScatter(scatterCount) : 0;
 
       grid.forEach((sym, idx) => {
         if (sym.isScatter) return;
@@ -913,7 +892,7 @@
 
       const wins = [];
       const removeIndices = new Set();
-      let baseWin = scatterWin;
+      let baseWin = 0;
 
       counts.forEach((indices, name) => {
         const payoutMult = payoutForCount(name, indices.length);
@@ -924,15 +903,7 @@
         }
       });
 
-      return {
-        wins,
-        removeIndices,
-        baseWin,
-        multiplierSum,
-        multiplierIndices,
-        scatterCount,
-        scatterWin
-      };
+      return { wins, removeIndices, baseWin, multiplierSum, multiplierIndices };
     }
 
     function applyTumble(grid, removeSet) {
@@ -1085,21 +1056,12 @@
       wasFreeSpin
     ) {
       let grid = [...resultSymbols];
+      const scatterCount = grid.filter((s) => s.isScatter).length;
       let spinTotal = 0;
       let tumbleStep = 0;
-      let includeScatter = true;
 
       while (true) {
-        const {
-          wins,
-          removeIndices,
-          baseWin,
-          multiplierSum,
-          multiplierIndices,
-          scatterCount,
-          scatterWin
-        } = collectWins(grid, includeScatter);
-        includeScatter = false;
+        const { wins, removeIndices, baseWin, multiplierSum, multiplierIndices } = collectWins(grid);
         if (baseWin <= 0) break;
 
         let stepWin = baseWin * currentBetPerLine;
@@ -1119,11 +1081,9 @@
         if (baseWin > 0 && multiplierSum > 0) {
           multiplierIndices.forEach((i) => highlightIndices.add(i));
         }
-        const winParts = wins.map((w) => `${w.count}× ${w.symbol}`);
-        if (scatterWin > 0) winParts.push(`${scatterCount}× SCATTER`);
         markIndices(Array.from(highlightIndices), LINE_COLORS[tumbleStep % LINE_COLORS.length]);
 
-        const winText = winParts.join(" + ");
+        const winText = wins.map((w) => `${w.count}× ${w.symbol}`).join(" + ");
         const multiplierText = multiplierSum > 0 ? ` ×${appliedMultiplier}${inFreeSpins ? ` (globale x${globalMultiplier.toFixed(2)})` : ""}` : "";
         setMessage(
           `Tumble ${tumbleStep + 1}: ${winText} → +${formatCurrency(stepWin)}${multiplierText}`,
@@ -1133,8 +1093,6 @@
         await new Promise((r) => setTimeout(r, turboMode ? 120 : 360));
 
         const removeSet = new Set(highlightIndices);
-        if (removeSet.size === 0) break; // scatter-only payout, no tumble to apply
-
         grid = applyTumble(grid, removeSet);
         for (let i = 0; i < grid.length; i++) setSlotImage(i, grid[i]);
         tumbleStep++;
@@ -1217,13 +1175,11 @@
         total += step;
         const removeSet = new Set(removeIndices);
         if (baseWin > 0 && multiplierSum > 0) multiplierIndices.forEach((i) => removeSet.add(i));
-        if (removeSet.size === 0) break;
         grid = applyTumble(grid, removeSet);
       }
 
-      const finalScatterCount = grid.filter((s) => s.isScatter).length;
-      const freeSpinsAwarded = !inBonus && finalScatterCount >= FREE_SPIN_TRIGGER
-        ? BASE_FREE_SPINS
+      const freeSpinsAwarded = !inBonus && scatterCount >= FREE_SPIN_TRIGGER
+        ? 10 + Math.floor(Math.random() * 6)
         : 0;
 
       return { win: total, freeSpinsAwarded, globalSim };
