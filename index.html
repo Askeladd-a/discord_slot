@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discord Slot – 10 Linee Wild / Scatter / Multi</title>
+  <title>Discord Slot – Gates-Style Pay-Anywhere con Tumble</title>
   <style>
     :root {
       --cell-size: min(14vw, 110px);
@@ -105,6 +105,22 @@
         box-shadow 0.18s ease,
         outline 0.18s ease,
         filter 0.18s ease;
+    }
+
+    .slot-cell img.pop-out {
+      animation: pop-out 0.26s ease forwards;
+      filter: saturate(1.5);
+    }
+
+    @keyframes pop-out {
+      0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.6) translateY(-10px);
+        opacity: 0;
+      }
     }
 
     .slot-cell img.win {
@@ -409,9 +425,9 @@
   </style>
 </head>
 <body>
-  <h1>Discord Slot – Ispirata a Gates Of Olympus (6×5 Pay-Anywhere)</h1>
+  <h1>Discord Slot – Gates Of Olympus Style (6×5 Pay-Anywhere)</h1>
   <p class="subtitle">
-    Griglia 6×5 pay-anywhere: conta simboli su tutto il pannello, scatter/free spin e moltiplicatori ⚡
+    Pay-anywhere 6×5 con tumble, scatter per i free spin e moltiplicatori casuali.
   </p>
 
   <div class="slot-wrapper">
@@ -472,8 +488,12 @@
         <span id="last-win">0</span>
       </div>
       <div class="info-block">
-        <span class="info-label">Linee attive:</span>
-        <span id="info-lines">25</span>
+        <span class="info-label">Schema:</span>
+        <span id="info-lines">Pay-anywhere</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">RTP simulato:</span>
+        <span id="info-rtp">~96% (20k spin)</span>
       </div>
     </div>
 
@@ -482,9 +502,9 @@
     <div class="play-bar" id="playBar">
       <div class="play-area">
         <div class="currency">€ <span id="display-credits">0.00</span></div>
-        <div class="bet">Puntata/linea: <button class="step" id="bet-minus">−</button> <span id="bet-per-line" class="value">1.00</span> <button class="step" id="bet-plus">+</button></div>
-        <div class="bet">Linee: <span id="lines-count" class="value">25</span></div>
-        <div class="bet">Totale: <span id="total-bet" class="value">25.00</span></div>
+        <div class="bet">Puntata base: <button class="step" id="bet-minus">−</button> <span id="bet-per-line" class="value">1.00</span> <button class="step" id="bet-plus">+</button></div>
+        <div class="bet">Pay-anywhere</div>
+        <div class="bet">Totale: <span id="total-bet" class="value">1.00</span></div>
       </div>
 
       <div class="controls-play">
@@ -543,13 +563,7 @@
       isScatter: true
     };
 
-    const WILD = {
-      name: "WILD",
-      img: "img/wild.png",
-      isWild: true
-    };
-
-    const MULT = {
+    const MULT_BASE = {
       name: "MULT",
       img: "img/multi.png",
       isMultiplier: true
@@ -561,62 +575,41 @@
 
     // for Gates-like behaviour we use pay-anywhere: counts across the whole panel
     const PAY_ANYWHERE = true;
-    const TOTAL_LINES = 0; // legacy UI value (not used when PAY_ANYWHERE=true)
+    const TOTAL_LINES = 1; // stake unico su schema pay-anywhere
 
-    // per-symbol payouts for 3/4/5 matches (values in currency relative to betPerLine)
-    // scaled symbol payouts (tuning applied ×5)
-    const SYMBOL_PAYOUTS = {
-      // user1..user10 -> payouts for 3,4,5 (per-line amounts)
-      User1: {3:4.00*5, 4:8.00*5, 5:50.00*5},
-      User2: {3:1.20*5,4:3.00*5,5:10.00*5},
-      User3: {3:1.20*5,4:3.00*5,5:10.00*5},
-      User4: {3:0.80*5,4:1.50*5,5:6.00*5},
-      User5: {3:0.80*5,4:1.50*5,5:6.00*5},
-      User6: {3:0.50*5,4:0.80*5,5:3.00*5},
-      User7: {3:0.50*5,4:0.80*5,5:3.00*5},
-      User8: {3:0.50*5,4:0.80*5,5:3.00*5},
-      User9: {3:0.50*5,4:0.80*5,5:3.00*5},
-        User10:{3:0.50*5,4:0.80*5,5:3.00*5},
-        User11:{3:0.40*5,4:0.70*5,5:2.50*5},
-        User12:{3:0.40*5,4:0.70*5,5:2.50*5}
+    // paytable ufficiale (Gates-style) espresso come multipli della puntata totale
+    const PAYTABLE = {
+      User1: { 8: 12, 10: 30, 12: 50 }, // corona
+      User2: { 8: 3, 10: 10, 12: 25 }, // anello
+      User3: { 8: 2.4, 10: 5, 12: 10 }, // clessidra
+      User4: { 8: 1.5, 10: 4, 12: 8 }, // calice
+      User5: { 8: 1, 10: 2.4, 12: 5 }, // gemma rossa
+      User6: { 8: 0.8, 10: 2, 12: 4 }, // gemma gialla
+      User7: { 8: 0.6, 10: 1.5, 12: 3 }, // gemma verde
+      User8: { 8: 0.4, 10: 1, 12: 2.4 }, // gemma blu
+      User9: { 8: 0.4, 10: 1, 12: 2.4 },
+      User10: { 8: 0.4, 10: 1, 12: 2.4 },
+      User11: { 8: 0.4, 10: 1, 12: 2.4 },
+      User12: { 8: 0.4, 10: 1, 12: 2.4 }
     };
 
-    // scatter paga sulla puntata totale
-    // scaled payouts (tuning): scale x5
-    const SCATTER_PAYOUT = {
-      3: 5 * 5,
-      4: 15 * 5,
-      5: 30 * 5
-    };
+    const SCATTER_PAYOUT = { 4: 60, 5: 100, 6: 200 };
 
-    // multipliers for 'of a kind' used in UI messages (3/4/5 of a kind)
-    const OF_A_KIND_MULT = { 3: 2, 4: 5, 5: 10 };
+    const FREE_SPIN_TRIGGER = 4;
+    const BASE_FREE_SPINS = 15;
+    const RETRIGGER_SCATTERS = 3;
+    const RETRIGGER_SPINS = 5;
+    const MULT_VALUES = [
+      2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 50, 100, 250, 500
+    ];
 
-    const FREE_SPIN_TRIGGER = 3;
-    // free spin awards based on scatter count (attachment reference)
-    const FREE_SPIN_AWARDS = {
-      3: 10,
-      4: 20,
-      5: 50
-    };
-    const FREE_SPIN_MULTIPLIER = 2; // tutte le win x2 nei free spin
-    // multiplier symbol value: each MULT symbol multiplies wins by MULT_VALUE (stacked as power)
-    const MULT_VALUE = 2;
-
-    // distribuzione simboli (scatter / wild / multiplier più rari)
+    // distribuzione simboli (scatter / multiplier più rari)
     const WEIGHTED_SYMBOLS = [];
-    // member weight kept at 5. Scatter 1. Wild and Mult increased per tuning.
     members.forEach((m) => {
-      WEIGHTED_SYMBOLS.push({ symbol: m, weight: 5 });
+      WEIGHTED_SYMBOLS.push({ symbol: m, weight: 6 });
     });
-    WEIGHTED_SYMBOLS.push({ symbol: SCATTER, weight: 1 });
-    WEIGHTED_SYMBOLS.push({ symbol: WILD, weight: 6 });
-    WEIGHTED_SYMBOLS.push({ symbol: MULT, weight: 4 });
-
-    const TOTAL_WEIGHT = WEIGHTED_SYMBOLS.reduce(
-      (sum, e) => sum + e.weight,
-      0
-    );
+    WEIGHTED_SYMBOLS.push({ symbol: SCATTER, weight: 1.5 });
+    WEIGHTED_SYMBOLS.push({ symbol: MULT_BASE, weight: 1 });
 
     const LINE_COLORS = [
       "#ffb703",
@@ -643,7 +636,7 @@
     const MAX_BET_PER_LINE = 100;
 
     let activeLines = TOTAL_LINES;
-    const MIN_LINES = 1;
+    const MIN_LINES = TOTAL_LINES;
     const MAX_LINES = TOTAL_LINES;
 
     let autoSpinCount = 10;
@@ -658,6 +651,7 @@
     let freeSpins = 0;
     let bonusBetPerLine = 1;
     let bonusLines = TOTAL_LINES;
+    let globalMultiplier = 1;
 
     // ---- DOM ------------------------------------------------------------
 
@@ -777,8 +771,8 @@
     }
 
     function updateLinesDisplay() {
-      linesCountEl.textContent = activeLines;
-      infoLinesEl.textContent = activeLines;
+      if (linesCountEl) linesCountEl.textContent = `${activeLines} (pay-anywhere)`;
+      infoLinesEl.textContent = "Pay-anywhere";
       totalBetEl.textContent = formatCurrency(betPerLine * activeLines);
       if (betTotalDisplay) betTotalDisplay.textContent = formatCurrency(betPerLine * activeLines);
     }
@@ -800,29 +794,31 @@
       }
     }
 
-    function randomSymbol(slotIndex = 0) {
-      // choose symbol respecting reel-specific restrictions (wild only on reels 2..4 -> indexes 1..3)
-      const col = slotIndex % COLS;
-      let total = 0;
-      for (const entry of WEIGHTED_SYMBOLS) {
-        // if entry is WILD and column is first or last, skip by treating weight 0
-        const w = entry.symbol.isWild && (col === 0 || col === COLS - 1) ? 0 : entry.weight;
-        total += w;
-      }
+    function rollMultiplierValue() {
+      const idx = Math.floor(Math.random() * MULT_VALUES.length);
+      return MULT_VALUES[idx];
+    }
+
+    function randomSymbol() {
+      const total = WEIGHTED_SYMBOLS.reduce((sum, e) => sum + e.weight, 0);
       let r = Math.random() * total;
       for (const entry of WEIGHTED_SYMBOLS) {
-        const w = entry.symbol.isWild && (col === 0 || col === COLS - 1) ? 0 : entry.weight;
-        if (r < w) return entry.symbol;
-        r -= w;
+        if (r < entry.weight) {
+          if (entry.symbol.isMultiplier) {
+            const value = rollMultiplierValue();
+            return { ...entry.symbol, value, name: `MULT x${value}` };
+          }
+          return entry.symbol;
+        }
+        r -= entry.weight;
       }
-      // fallback
       return WEIGHTED_SYMBOLS[0].symbol;
     }
 
     function setSlotImage(slotIndex, symbol) {
       const img = document.getElementById(`slot-${slotIndex}`);
       img.src = symbol.img;
-      img.alt = symbol.name;
+      img.alt = symbol.isMultiplier ? `Moltiplicatore x${symbol.value}` : symbol.name;
     }
 
     function clearPaylines() {
@@ -893,6 +889,104 @@
       });
     }
 
+    function payoutForCount(symbolName, count) {
+      const table = PAYTABLE[symbolName];
+      if (!table) return 0;
+      const thresholds = Object.keys(table)
+        .map(Number)
+        .sort((a, b) => a - b);
+      let matched = 0;
+      thresholds.forEach((t) => {
+        if (count >= t) matched = t;
+      });
+      return matched ? table[matched] : 0;
+    }
+
+    function payoutForScatter(count) {
+      if (count >= 6) return SCATTER_PAYOUT[6];
+      if (count >= 5) return SCATTER_PAYOUT[5];
+      if (count >= 4) return SCATTER_PAYOUT[4];
+      return 0;
+    }
+
+    function collectWins(grid, includeScatter = true) {
+      const counts = new Map();
+      const multiplierIndices = [];
+      let multiplierSum = 0;
+      const scatterCount = grid.filter((s) => s.isScatter).length;
+      const scatterWin = includeScatter ? payoutForScatter(scatterCount) : 0;
+
+      grid.forEach((sym, idx) => {
+        if (sym.isScatter) return;
+        if (sym.isMultiplier) {
+          multiplierIndices.push(idx);
+          multiplierSum += sym.value || 0;
+          return;
+        }
+        if (!counts.has(sym.name)) counts.set(sym.name, []);
+        counts.get(sym.name).push(idx);
+      });
+
+      const wins = [];
+      const removeIndices = new Set();
+      let baseWin = scatterWin;
+
+      counts.forEach((indices, name) => {
+        const payoutMult = payoutForCount(name, indices.length);
+        if (payoutMult > 0) {
+          wins.push({ symbol: name, count: indices.length, payoutMult, indices });
+          indices.forEach((i) => removeIndices.add(i));
+          baseWin += payoutMult;
+        }
+      });
+
+      return {
+        wins,
+        removeIndices,
+        baseWin,
+        multiplierSum,
+        multiplierIndices,
+        scatterCount,
+        scatterWin
+      };
+    }
+
+    function applyTumble(grid, removeSet) {
+      const newGrid = [...grid];
+      const dropDistances = Array(grid.length).fill(0);
+      const newSymbolFlags = Array(grid.length).fill(false);
+
+      for (let c = 0; c < COLS; c++) {
+        const kept = [];
+        const dist = [];
+        let emptyBelow = 0;
+
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          if (removeSet.has(idx)) {
+            emptyBelow++;
+            continue;
+          }
+          kept.push(grid[idx]);
+          dist.push(emptyBelow);
+        }
+
+        while (kept.length < ROWS) {
+          kept.push(randomSymbol());
+          dist.push(ROWS); // spawn from above the grid for a visible fall
+        }
+
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          const arrIdx = ROWS - 1 - r;
+          newGrid[idx] = kept[arrIdx];
+          dropDistances[idx] = dist[arrIdx];
+          newSymbolFlags[idx] = dist[arrIdx] >= ROWS;
+        }
+      }
+      return { grid: newGrid, dropDistances, newSymbolFlags };
+    }
+
     // animazione rulli
     function spinAnimation(finalSymbols, onComplete) {
       const columns = [];
@@ -932,6 +1026,7 @@
     function spinOnce(fromAuto = false) {
       if (inFreeSpins && freeSpins <= 0) {
         inFreeSpins = false;
+        globalMultiplier = 1;
         updateMode();
       }
 
@@ -979,9 +1074,9 @@
         finalSymbols.push(randomSymbol(i));
       }
 
-      spinAnimation(finalSymbols, () => {
+      spinAnimation(finalSymbols, async () => {
         try {
-          evaluateResult(
+          await evaluateResult(
             finalSymbols,
             betTotal,
             currentBetPerLine,
@@ -1017,186 +1112,212 @@
       });
     }
 
-    function evaluateResult(
+    function animateRemovals(indices) {
+      indices.forEach((i) => {
+        const img = document.getElementById(`slot-${i}`);
+        img.classList.add("pop-out");
+      });
+    }
+
+    function animateTumbleTransition(newGrid, dropDistances, newSymbolFlags) {
+      const cell = document.querySelector(".slot-cell");
+      const gap = parseFloat(getComputedStyle(slotContainer).gap || "0");
+      const unit = (cell?.clientHeight || 100) + gap;
+      const dropDuration = turboMode ? 150 : 260;
+
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            for (let i = 0; i < newGrid.length; i++) {
+              const img = document.getElementById(`slot-${i}`);
+              img.classList.remove("win", "pop-out");
+              img.style.transition = "none";
+              const distance = dropDistances?.[i] || 0;
+              const fromY = -distance * unit;
+              img.style.transform = `translateY(${fromY}px)`;
+              img.style.opacity = newSymbolFlags?.[i] ? 0 : 1;
+              setSlotImage(i, newGrid[i]);
+            }
+
+            requestAnimationFrame(() => {
+              for (let i = 0; i < newGrid.length; i++) {
+                const img = document.getElementById(`slot-${i}`);
+                img.style.transition = `transform ${dropDuration}ms ease, opacity ${dropDuration}ms ease`;
+                img.style.transform = "translateY(0)";
+                img.style.opacity = 1;
+              }
+            });
+          });
+        });
+
+        setTimeout(resolve, dropDuration + 30);
+      });
+    }
+
+    async function evaluateResult(
       resultSymbols,
       betTotal,
       currentBetPerLine,
       currentLines,
       wasFreeSpin
     ) {
-      // pay-anywhere: count occurrences of each symbol across panel
-      let wildMultiplierSum = 0;
-      resultSymbols.forEach((s) => {
-        if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
-      });
-      const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
+      let grid = [...resultSymbols];
+      let spinTotal = 0;
+      let tumbleStep = 0;
+      let includeScatter = true;
 
-      let totalWinBase = 0;
-      lastWin = 0;
-      const wins = [];
-      const baseTotalBet = currentBetPerLine * currentLines;
+      while (true) {
+        const {
+          wins,
+          removeIndices,
+          baseWin,
+          multiplierSum,
+          multiplierIndices,
+          scatterCount,
+          scatterWin
+        } = collectWins(grid, includeScatter);
+        includeScatter = false;
+        if (baseWin <= 0) break;
 
-      // scatter
-      let scatterCount = 0;
-      const scatterIndices = [];
-      resultSymbols.forEach((sym, idx) => {
-        if (sym.isScatter) {
-          scatterCount++;
-          scatterIndices.push(idx);
+        let stepWin = baseWin * currentBetPerLine;
+        let appliedMultiplier = 1;
+        if (multiplierSum > 0) {
+          appliedMultiplier = multiplierSum;
+          stepWin *= appliedMultiplier;
+          if (inFreeSpins) globalMultiplier += multiplierSum;
         }
-      });
+        if (inFreeSpins) stepWin *= globalMultiplier;
 
-      // count regular symbols (members and wild)
-      // collect natural indices per symbol and wild indices
-      const counts = new Map();
-      const wildIndices = [];
-      resultSymbols.forEach((sym, idx) => {
-        if (sym.isScatter || sym.isMultiplier) return;
-        if (sym.isWild) {
-          wildIndices.push(idx);
-          return;
-        }
-        if (!counts.has(sym.name)) counts.set(sym.name, { count: 0, indices: [] });
-        const ent = counts.get(sym.name);
-        ent.count++;
-        ent.indices.push(idx);
-      });
+        spinTotal += stepWin;
+        lastWin = spinTotal;
+        updateLastWin();
 
-      // evaluate payouts for each symbol type, allowing wilds to contribute as jokers
-      counts.forEach((info, key) => {
-        const natural = info.count;
-        const effective = natural + wildIndices.length;
-        if (effective < 3) return;
-        const payoutKey = effective >= 5 ? 5 : effective;
-        let basePayout = (SYMBOL_PAYOUTS[key] && SYMBOL_PAYOUTS[key][payoutKey]) || 0;
-        if (basePayout > 0) {
-          const multCount = resultSymbols.filter(s => s.isMultiplier).length;
-          const symbolMultiplier = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
-          const winAmount = basePayout * symbolMultiplier * currentBetPerLine;
-          totalWinBase += winAmount;
-          // choose indices: natural ones first, then some wild indices if needed
-          const neededFromWild = Math.max(0, payoutKey - natural);
-          const usedWild = wildIndices.slice(0, neededFromWild);
-          const winIndices = [...info.indices.slice(0, payoutKey), ...usedWild].slice(0, payoutKey);
-          wins.push({ symbol: key, count: payoutKey, winAmount, indices: winIndices });
+        const highlightIndices = new Set(removeIndices);
+        if (baseWin > 0 && multiplierSum > 0) {
+          multiplierIndices.forEach((i) => highlightIndices.add(i));
         }
-      });
+        const winParts = wins.map((w) => `${w.count}× ${w.symbol}`);
+        if (scatterWin > 0) winParts.push(`${scatterCount}× SCATTER`);
+        markIndices(Array.from(highlightIndices), LINE_COLORS[tumbleStep % LINE_COLORS.length]);
 
-      // scatter payout + bonus
-      let scatterWinBase = 0;
-      let bonusText = '';
-      if (scatterCount >= FREE_SPIN_TRIGGER) {
-        const key = scatterCount >= 5 ? 5 : scatterCount;
-        const scatterMult = SCATTER_PAYOUT[key] || 0;
-        if (scatterMult > 0) {
-          scatterWinBase = scatterMult * baseTotalBet;
-          totalWinBase += scatterWinBase;
-        }
-        const awarded = FREE_SPIN_AWARDS[key] || 0;
-        freeSpins = Math.min(50, freeSpins + awarded);
-        inFreeSpins = true;
-        bonusBetPerLine = currentBetPerLine;
-        bonusLines = currentLines;
-        autoSpinsLeft = 0;
-        updateAutoLabel();
-        bonusText = `Bonus! ${scatterCount} scatter: ${scatterMult}× puntata totale (+${scatterWinBase}) e +${awarded} free spin 🎁`;
+        const winText = winParts.join(" + ");
+        const multiplierText = multiplierSum > 0 ? ` ×${appliedMultiplier}${inFreeSpins ? ` (globale x${globalMultiplier.toFixed(2)})` : ""}` : "";
+        setMessage(
+          `Tumble ${tumbleStep + 1}: ${winText} → +${formatCurrency(stepWin)}${multiplierText}`,
+          stepWin >= betTotal * 5 ? "bigwin" : "win"
+        );
+
+        const removeSet = new Set(highlightIndices);
+        if (removeSet.size === 0) break; // scatter-only payout, no tumble to apply
+
+        animateRemovals(Array.from(removeSet));
+        await new Promise((r) => setTimeout(r, turboMode ? 80 : 220));
+
+        const { grid: nextGrid, dropDistances, newSymbolFlags } = applyTumble(
+          grid,
+          removeSet
+        );
+
+        await animateTumbleTransition(nextGrid, dropDistances, newSymbolFlags);
+        grid = nextGrid;
+        tumbleStep++;
+        await new Promise((r) => setTimeout(r, turboMode ? 60 : 140));
+        clearWins();
       }
 
-      // free spin multiplier
-      let totalWin = totalWinBase;
-      if (wasFreeSpin && totalWinBase > 0) totalWin = totalWinBase * FREE_SPIN_MULTIPLIER;
+      const finalScatterCount = grid.filter((s) => s.isScatter).length;
 
-      if (totalWin > 0) {
-        const multiplied = totalWin * wildMultiplier;
-        credits += multiplied;
-        totalWin = multiplied;
+      if (spinTotal > 0) {
+        credits += spinTotal;
         updateCredits();
         saveState();
       }
 
-      lastWin = totalWin;
+      // scatter trigger after tumbles conclude
+      if (!inFreeSpins && finalScatterCount >= FREE_SPIN_TRIGGER) {
+        const awarded = BASE_FREE_SPINS;
+        freeSpins = Math.min(100, freeSpins + awarded);
+        inFreeSpins = true;
+        globalMultiplier = 1;
+        bonusBetPerLine = currentBetPerLine;
+        bonusLines = currentLines;
+        autoSpinsLeft = 0;
+        updateAutoLabel();
+        setMessage(
+          `Bonus attivato! ${finalScatterCount} scatter → ${awarded} free spin. Moltiplicatore globale attuale: x${globalMultiplier.toFixed(2)}.`,
+          "bonus"
+        );
+      } else if (inFreeSpins && finalScatterCount >= RETRIGGER_SCATTERS) {
+        freeSpins = Math.min(100, freeSpins + RETRIGGER_SPINS);
+        setMessage(
+          `Retrigger! ${finalScatterCount} scatter → +${RETRIGGER_SPINS} free spin (totale ${freeSpins}). Moltiplicatore globale: x${globalMultiplier.toFixed(2)}.`,
+          "bonus"
+        );
+      } else if (spinTotal === 0) {
+        if (wasFreeSpin && freeSpins > 0) setMessage(`Free spin senza vincita. Free spin rimasti: ${freeSpins}`);
+        else if (wasFreeSpin && freeSpins === 0) {
+          inFreeSpins = false;
+          globalMultiplier = 1;
+          updateMode();
+          setMessage("Fine modalità bonus, si torna al gioco base.");
+        } else setMessage("Nessuna combinazione… ritenta 😈");
+      }
+
+      lastWin = spinTotal;
       updateLastWin();
       updateMode();
 
-      // highlight wins and scatters
-      wins.forEach((w, idx) => markIndices(w.indices, LINE_COLORS[idx % LINE_COLORS.length]));
-      if (scatterCount >= FREE_SPIN_TRIGGER) markIndices(scatterIndices, '#ff9f1c');
-
-      // draw simple outlines for each win (use same structure expected by drawPaylines)
-      const drawLines = wins.map((w, i) => ({ lineSlots: w.indices, color: LINE_COLORS[i % LINE_COLORS.length] }));
-      // In pay-anywhere mode we do not draw connective payline polylines
-      // because wins are groups of cells rather than sequential paylines.
-      // Keep only cell highlighting (markIndices) to avoid the criss-cross lines.
-      if (!PAY_ANYWHERE && drawLines.length) drawPaylines(drawLines);
-
-      // messages
-      if (totalWin > 0) {
-        const parts = wins.map(w => `${w.count}× ${w.symbol} → +${formatCurrency(w.winAmount)}`);
-        if (scatterCount >= FREE_SPIN_TRIGGER) parts.push(bonusText);
-        let type = 'win';
-        let label = 'WIN!';
-        const refBet = (betPerLine * activeLines) || betTotal || 1;
-        if (totalWin >= refBet * 10) { type = 'bigwin'; label = 'MEGA WIN!'; }
-        else if (totalWin >= refBet * 5) { type = 'nice'; label = 'BIG WIN!'; }
-        let msg = `${label} ${parts.join(' • ')} – Totale: +${formatCurrency(totalWin)} crediti`;
-        if (wasFreeSpin && totalWinBase > 0) msg += ` (x${FREE_SPIN_MULTIPLIER} in bonus)`;
-        setMessage(msg, type);
-      } else {
-        if (wasFreeSpin && freeSpins > 0) setMessage(`Free spin senza vincita. Free spin rimasti: ${freeSpins}`);
-        else if (wasFreeSpin && freeSpins === 0) { inFreeSpins = false; updateMode(); setMessage('Fine modalità bonus, si torna al gioco base.'); }
-        else setMessage('Nessuna combinazione… ritenta 😈');
+      if (inFreeSpins && freeSpins <= 0 && finalScatterCount < FREE_SPIN_TRIGGER) {
+        inFreeSpins = false;
+        globalMultiplier = 1;
+        updateMode();
       }
     }
 
     // --- Simulazione (versione headless per RTP estimation)
-    function evaluatePayout(resultSymbols, currentBetPerLine, currentLines) {
-      // pay-anywhere evaluation for headless RTP calc
-      let totalWinBase = 0;
-      const baseTotalBet = currentBetPerLine * currentLines;
+    function resolveSpinSimulation(currentBetPerLine, currentLines, inBonus = false, startingGlobal = 1) {
+      let grid = randomFinalSymbols();
+      let total = 0;
+      let globalSim = startingGlobal;
+      let includeScatter = true;
 
-      // scatter
-      let scatterCount = 0;
-      resultSymbols.forEach((sym) => { if (sym.isScatter) scatterCount++; });
-
-      // counts for symbols
-      const counts = new Map();
-      resultSymbols.forEach((sym) => {
-        if (sym.isScatter || sym.isMultiplier) return;
-        const key = sym.isWild ? 'WILD' : sym.name;
-        counts.set(key, (counts.get(key) || 0) + 1);
-      });
-
-      counts.forEach((cnt, key) => {
-        if (cnt < 3) return;
-        const payoutKey = cnt >= 5 ? 5 : cnt;
-        let basePayout = 0;
-        if (key === 'WILD') basePayout = SYMBOL_PAYOUTS['User1'] ? SYMBOL_PAYOUTS['User1'][payoutKey] || 0 : 0;
-        else basePayout = (SYMBOL_PAYOUTS[key] && SYMBOL_PAYOUTS[key][payoutKey]) || 0;
-        if (basePayout > 0) {
-          const multCount = resultSymbols.filter(s => s.isMultiplier).length;
-          const symMult = multCount > 0 ? Math.pow(MULT_VALUE, multCount) : 1;
-          totalWinBase += basePayout * symMult * currentBetPerLine;
+      while (true) {
+        const {
+          baseWin,
+          multiplierSum,
+          removeIndices,
+          multiplierIndices,
+          scatterCount
+        } = collectWins(grid, includeScatter);
+        includeScatter = false;
+        if (baseWin <= 0) break;
+        let step = baseWin * currentBetPerLine;
+        if (multiplierSum > 0) {
+          step *= multiplierSum;
+          if (inBonus) globalSim += multiplierSum;
         }
-      });
-
-      if (scatterCount >= FREE_SPIN_TRIGGER) {
-        const key = scatterCount >= 5 ? 5 : scatterCount;
-        const scatterMult = SCATTER_PAYOUT[key] || 0;
-        if (scatterMult > 0) totalWinBase += scatterMult * baseTotalBet;
+        if (inBonus) step *= globalSim;
+        total += step;
+        const removeSet = new Set(removeIndices);
+        if (baseWin > 0 && multiplierSum > 0) multiplierIndices.forEach((i) => removeSet.add(i));
+        if (removeSet.size === 0) break;
+        grid = applyTumble(grid, removeSet);
       }
 
-      let wildMultiplierSum = 0;
-      resultSymbols.forEach((s) => {
-        if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random() * 3);
-      });
-      const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
+      const finalScatterCount = grid.filter((s) => s.isScatter).length;
+      const freeSpinsAwarded = !inBonus && finalScatterCount >= FREE_SPIN_TRIGGER
+        ? BASE_FREE_SPINS
+        : 0;
+      const retriggerSpins = inBonus && finalScatterCount >= RETRIGGER_SCATTERS
+        ? RETRIGGER_SPINS
+        : 0;
 
-      return totalWinBase * wildMultiplier;
+      return { win: total, freeSpinsAwarded, retriggerSpins, globalSim };
     }
 
     function randomFinalSymbols() {
       const finalSymbols = [];
-      for (let i = 0; i < TOTAL_SLOTS; i++) finalSymbols.push(randomSymbol(i));
+      for (let i = 0; i < TOTAL_SLOTS; i++) finalSymbols.push(randomSymbol());
       return finalSymbols;
     }
 
@@ -1207,10 +1328,23 @@
       for (let i = 0; i < spins; i += chunk) {
         const end = Math.min(spins, i + chunk);
         for (let j = i; j < end; j++) {
-          const finalSymbols = randomFinalSymbols();
-          const win = evaluatePayout(finalSymbols, betPerLineForSim, linesForSim);
-          totalWin += win;
+          const baseResult = resolveSpinSimulation(betPerLineForSim, linesForSim, false, 1);
+          totalWin += baseResult.win;
           totalBet += betPerLineForSim * linesForSim;
+
+          if (baseResult.freeSpinsAwarded > 0) {
+            let bonusGlobal = 1;
+            let pendingFs = Math.min(100, baseResult.freeSpinsAwarded);
+            while (pendingFs > 0) {
+              pendingFs--;
+              const bonusResult = resolveSpinSimulation(betPerLineForSim, linesForSim, true, bonusGlobal);
+              bonusGlobal = bonusResult.globalSim;
+              totalWin += bonusResult.win;
+              if (bonusResult.retriggerSpins > 0) {
+                pendingFs = Math.min(100, pendingFs + bonusResult.retriggerSpins);
+              }
+            }
+          }
         }
         if (onProgress) onProgress(Math.min(1, (end) / spins));
         // yield to UI
@@ -1255,15 +1389,15 @@
       });
     }
 
-    // Paylines are fixed at 25. Disable any attempts to change them.
+    // Pay-anywhere: nessuna linea modificabile.
     if (linesMinusBtn) {
       linesMinusBtn.addEventListener("click", () => {
-        setMessage("Le linee sono fisse a 25 e non possono essere modificate.", "error");
+        setMessage("Schema pay-anywhere: nessuna linea da modificare.", "error");
       });
     }
     if (linesPlusBtn) {
       linesPlusBtn.addEventListener("click", () => {
-        setMessage("Le linee sono fisse a 25 e non possono essere modificate.", "error");
+        setMessage("Schema pay-anywhere: nessuna linea da modificare.", "error");
       });
     }
 
@@ -1430,7 +1564,7 @@
     updateMode();
     updateAutoLabel();
     setMessage(
-      "Slot 6×5 pay-anywhere con wild, scatter e multiplier. Premi SPIN!"
+      "Slot 6×5 pay-anywhere con tumble, scatter per i free spin e moltiplicatori casuali. Premi SPIN!"
     );
 
     // assicurati che play-bar mostri i valori corretti
