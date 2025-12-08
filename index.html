@@ -85,11 +85,12 @@
     }
 
     .slot-cell {
+      position: relative;
       width: var(--cell-size);
       height: var(--cell-size);
       background: linear-gradient(180deg,#0a0b0f,#07080b);
       border-radius: 14px;
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -105,6 +106,22 @@
         box-shadow 0.18s ease,
         outline 0.18s ease,
         filter 0.18s ease;
+    }
+
+    .slot-cell img.pop-out {
+      animation: pop-out 0.26s ease forwards;
+      filter: saturate(1.5);
+    }
+
+    @keyframes pop-out {
+      0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.6) translateY(-10px);
+        opacity: 0;
+      }
     }
 
     .slot-cell img.pop-out {
@@ -1228,6 +1245,104 @@
       return matched ? table[matched] : 0;
     }
 
+    function payoutForScatter(count) {
+      if (count >= 6) return SCATTER_PAYOUT[6];
+      if (count >= 5) return SCATTER_PAYOUT[5];
+      if (count >= 4) return SCATTER_PAYOUT[4];
+      return 0;
+    }
+
+    function collectWins(grid, includeScatter = true) {
+      const counts = new Map();
+      const multiplierIndices = [];
+      let multiplierSum = 0;
+      const scatterCount = grid.filter((s) => s.isScatter).length;
+      const scatterWin = includeScatter ? payoutForScatter(scatterCount) : 0;
+
+      grid.forEach((sym, idx) => {
+        if (sym.isScatter) return;
+        if (sym.isMultiplier) {
+          multiplierIndices.push(idx);
+          multiplierSum += sym.value || 0;
+          return;
+        }
+        if (!counts.has(sym.name)) counts.set(sym.name, []);
+        counts.get(sym.name).push(idx);
+      });
+
+      const wins = [];
+      const removeIndices = new Set();
+      let baseWin = scatterWin;
+
+      counts.forEach((indices, name) => {
+        const payoutMult = payoutForCount(name, indices.length);
+        if (payoutMult > 0) {
+          wins.push({ symbol: name, count: indices.length, payoutMult, indices });
+          indices.forEach((i) => removeIndices.add(i));
+          baseWin += payoutMult;
+        }
+      });
+
+      return {
+        wins,
+        removeIndices,
+        baseWin,
+        multiplierSum,
+        multiplierIndices,
+        scatterCount,
+        scatterWin
+      };
+    }
+
+    function applyTumble(grid, removeSet) {
+      const newGrid = [...grid];
+      const dropDistances = Array(grid.length).fill(0);
+      const newSymbolFlags = Array(grid.length).fill(false);
+
+      for (let c = 0; c < COLS; c++) {
+        const kept = [];
+        const dist = [];
+        let emptyBelow = 0;
+
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          if (removeSet.has(idx)) {
+            emptyBelow++;
+            continue;
+          }
+          kept.push(grid[idx]);
+          dist.push(emptyBelow);
+        }
+
+        while (kept.length < ROWS) {
+          kept.push(randomSymbol());
+          dist.push(ROWS); // spawn from above the grid for a visible fall
+        }
+
+        for (let r = ROWS - 1; r >= 0; r--) {
+          const idx = r * COLS + c;
+          const arrIdx = ROWS - 1 - r;
+          newGrid[idx] = kept[arrIdx];
+          dropDistances[idx] = dist[arrIdx];
+          newSymbolFlags[idx] = dist[arrIdx] >= ROWS;
+        }
+      }
+      return { grid: newGrid, dropDistances, newSymbolFlags };
+    }
+
+    function payoutForCount(symbolName, count) {
+      const table = PAYTABLE[symbolName];
+      if (!table) return 0;
+      const thresholds = Object.keys(table)
+        .map(Number)
+        .sort((a, b) => a - b);
+      let matched = 0;
+      thresholds.forEach((t) => {
+        if (count >= t) matched = t;
+      });
+      return matched ? table[matched] : 0;
+    }
+
     function collectWins(grid) {
       const counts = new Map();
       const multiplierIndices = [];
@@ -1422,6 +1537,7 @@
             const img = document.getElementById(`slot-${i}`);
             img.classList.remove("win", "pop-out");
             img.style.transition = "none";
+            img.style.animation = "none";
             img.style.transform = "translateY(0)";
             img.style.opacity = 1;
           }
@@ -1443,6 +1559,7 @@
             requestAnimationFrame(() => {
               for (let i = 0; i < newGrid.length; i++) {
                 const img = document.getElementById(`slot-${i}`);
+                img.style.removeProperty("animation");
                 img.style.transition = `transform ${dropDuration}ms ease, opacity ${dropDuration}ms ease`;
                 img.style.transform = "translateY(0)";
                 img.style.opacity = 1;
