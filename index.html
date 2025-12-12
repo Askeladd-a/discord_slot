@@ -57,6 +57,10 @@
           </div>
           <button id="spin">SPIN</button>
           <button id="autoSpin">Auto Spin</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <label style="font-size:13px">Auto Count</label>
+            <input id="autoCount" type="number" min="0" step="1" placeholder="0 = infinite" style="width:80px;padding:6px;border-radius:6px;border:1px solid #222;background:#0b0c10;color:#eee" />
+          </div>
           <div style="display:flex;gap:8px;align-items:center">
             <label style="font-size:12px;margin-right:6px">Spin Speed</label>
             <input id="spinSpeed" type="range" min="50" max="200" value="100" />
@@ -69,18 +73,12 @@
     </div>
   </div>
   <script>
-    // Audio removed: replace with no-op stubs
     // Audio removed: keep harmless no-op stubs for future reactivation
     function playBeep(){ }
     function playClick(){ }
     function playStopTone(){ }
     function playCoinSound(){ }
     function playLeverSound(){ }
-              <button id="autoSpin">Auto Spin</button>
-              <div style="display:flex;align-items:center;gap:6px">
-                <label style="font-size:13px">Auto Count</label>
-                <input id="autoCount" type="number" min="0" step="1" placeholder="0 = infinite" style="width:80px;padding:6px;border-radius:6px;border:1px solid #222;background:#0b0c10;color:#eee" />
-              </div>
     // pickWeighted considers ante boosting scatter
     let anteOn = false; const ANTE_MULT = 25; const ANTE_SCATTER_BOOST = 3;
     // Image prefix and symbol definitions (was missing — causes symbols to not load)
