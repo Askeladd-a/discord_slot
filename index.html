@@ -49,25 +49,39 @@
             </div>
           </div>
         </div>
-        <div class="controls">
+        <div class="controls" style="display:flex;justify-content:space-between;align-items:center">
           <div style="display:flex;gap:8px;align-items:center">
             <button id="betMinus">-</button>
             <div>Bet: <span id="betDisplay">1.00</span></div>
             <button id="betPlus">+</button>
           </div>
-          <button id="spin">SPIN</button>
-          <button id="autoSpin">Auto Spin</button>
-          <div style="display:flex;align-items:center;gap:6px">
-            <label style="font-size:13px">Auto Count</label>
-            <input id="autoCount" type="number" min="0" step="1" placeholder="0 = infinite" style="width:80px;padding:6px;border-radius:6px;border:1px solid #222;background:#0b0c10;color:#eee" />
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <button id="spin">SPIN</button>
+              <button id="autoSpin">Auto Spin</button>
+            </div>
+            <div style="font-size:13px;color:#ccc">Mode: <span id="mode">Base</span> &nbsp; · &nbsp; Free Spins: <span id="fs">0</span> &nbsp; · &nbsp; Last Win: <span id="lastWin">0</span></div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label style="font-size:12px;margin-right:6px">Spin Speed</label>
-            <input id="spinSpeed" type="range" min="50" max="200" value="100" />
+
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <label style="font-size:13px">Auto</label>
+              <button id="autoPreset10">10</button>
+              <button id="autoPreset25">25</button>
+              <button id="autoPreset50">50</button>
+              <button id="autoPreset100">100</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div id="autoStatus" style="min-width:60px;padding:6px 10px;border-radius:8px;background:#07070a;color:#ffd966;text-align:center">—</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:13px">Spin Speed</label>
+                <button id="speedSlow">Slow</button>
+                <button id="speedNormal">Normal</button>
+                <button id="speedFast">Fast</button>
+              </div>
+            </div>
           </div>
-          <div id="mode">Mode: Base</div>
-          <div id="fs">Free Spins: 0</div>
-          <div id="lastWin">Last Win: 0</div>
         </div>
       </main>
     </div>
@@ -268,21 +282,49 @@
       if(buyBtn) buyBtn.disabled = true; if(anteBtn) anteBtn.disabled = true;
     });
 
-    // wire audio / spin-speed controls
+    // wire spin-speed and auto-spin preset buttons
     document.addEventListener('DOMContentLoaded', ()=>{
       const audioBtn = document.getElementById('toggleAudio');
-      const spinSpeed = document.getElementById('spinSpeed');
       if(audioBtn){ audioBtn.disabled = true; audioBtn.textContent = 'Audio Removed'; }
-      if(spinSpeed){ spinSpeed.addEventListener('input', (e)=>{
-        const v = Number(e.target.value)/100; // scale factor
-        TIMINGS.baseDuration = Math.round(680 / v);
-        TIMINGS.perReelDelay = Math.round(180 / v);
-        TIMINGS.perReelExtra = Math.round(140 / v);
-        TIMINGS.cycleInterval = Math.round(120 / v);
-        TIMINGS.fastSwipe = Math.round(240 / v);
-        TIMINGS.settle = Math.round(300 / v);
-        showFloat(`Speed ${(v*100).toFixed(0)}%`, 600);
-      }); }
+
+      // speed presets
+      const speedPresets = {
+        slow: { baseDuration: 1000, perReelDelay: 280, perReelExtra: 220, cycleInterval: 180, fastSwipe: 340, settle: 520 },
+        normal: { baseDuration: 820, perReelDelay: 220, perReelExtra: 160, cycleInterval: 140, fastSwipe: 260, settle: 420 },
+        fast: { baseDuration: 560, perReelDelay: 140, perReelExtra: 100, cycleInterval: 96, fastSwipe: 180, settle: 300 }
+      };
+      function applySpeedPreset(p){ Object.assign(TIMINGS, p); showFloat('Speed: ' + (p === speedPresets.slow ? 'Slow' : p === speedPresets.fast ? 'Fast' : 'Normal'), 800); }
+      const speedSlow = document.getElementById('speedSlow'); const speedNormal = document.getElementById('speedNormal'); const speedFast = document.getElementById('speedFast');
+      if(speedSlow) speedSlow.addEventListener('click', ()=> applySpeedPreset(speedPresets.slow));
+      if(speedNormal) speedNormal.addEventListener('click', ()=> applySpeedPreset(speedPresets.normal));
+      if(speedFast) speedFast.addEventListener('click', ()=> applySpeedPreset(speedPresets.fast));
+
+      // autospin presets (10,25,50,100)
+      const autoPreset10 = document.getElementById('autoPreset10');
+      const autoPreset25 = document.getElementById('autoPreset25');
+      const autoPreset50 = document.getElementById('autoPreset50');
+      const autoPreset100 = document.getElementById('autoPreset100');
+      function startAutoWithCount(n){
+        autoSpinCount = Math.max(0, Math.floor(n));
+        const autoBtn = document.getElementById('autoSpin');
+        const autoStatusEl = document.getElementById('autoStatus');
+        if(autoStatusEl) autoStatusEl.textContent = autoSpinCount>0 ? String(autoSpinCount) : '∞';
+        if(autoBtn){
+          AUTO_SPIN_ON = true; autoBtn.textContent = 'Stop Auto';
+          if(_autoSpinInterval){ clearInterval(_autoSpinInterval); _autoSpinInterval=null; }
+          _autoSpinInterval = setInterval(async ()=>{
+            if(!inFreeSpins && balance < betPerSpin){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; if(autoStatusEl) autoStatusEl.textContent='—'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; return; }
+            if(document.getElementById('spin').disabled) return;
+            await spin();
+            if(autoSpinCount>0){ autoSpinCount = Math.max(0, autoSpinCount - 1); if(autoStatusEl) autoStatusEl.textContent = autoSpinCount>0 ? String(autoSpinCount) : '—'; if(autoSpinCount === 0){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; } }
+            updateUI();
+          }, AUTO_SPIN_DELAY);
+        }
+      }
+      if(autoPreset10) autoPreset10.addEventListener('click', ()=> startAutoWithCount(10));
+      if(autoPreset25) autoPreset25.addEventListener('click', ()=> startAutoWithCount(25));
+      if(autoPreset50) autoPreset50.addEventListener('click', ()=> startAutoWithCount(50));
+      if(autoPreset100) autoPreset100.addEventListener('click', ()=> startAutoWithCount(100));
     });
 
     // payout helpers
@@ -409,7 +451,7 @@
     // state
     let balance = 1000; let inFreeSpins=false; let freeSpins=0;
     // bet controls
-    let betPerSpin = 1.0; const BET_STEP = 0.5; const MIN_BET = 0.1; const MAX_BET = 1000;
+    let betPerSpin = 1.0; const BET_STEP = 0.1; const MIN_BET = 0.1; const MAX_BET = 1000;
 
     function updateUI(){
       balanceEl.textContent = `Credits: ${balance.toFixed(2)}`;
@@ -421,7 +463,7 @@
       const buyBonusEl = document.getElementById('buyBonus'); if(buyBonusEl) { buyBonusEl.textContent = `Buy Bonus (${(betPerSpin*100).toFixed(2)} credits)`; buyBonusEl.disabled = anteOn; }
       const toggleAnteEl = document.getElementById('toggleAnte'); if(toggleAnteEl) toggleAnteEl.textContent = `Ante x25 ${anteOn? 'ON' : 'OFF'}`;
       const autoBtn = document.getElementById('autoSpin'); if(autoBtn) autoBtn.textContent = AUTO_SPIN_ON ? 'Stop Auto' : 'Auto Spin';
-      const autoCountEl = document.getElementById('autoCount'); if(autoCountEl){ if(autoSpinCount>0 && AUTO_SPIN_ON) autoCountEl.value = autoSpinCount; }
+      const autoStatusEl = document.getElementById('autoStatus'); if(autoStatusEl){ autoStatusEl.textContent = (AUTO_SPIN_ON ? (autoSpinCount>0 ? String(autoSpinCount) : '∞') : '—'); }
     }
     updateUI();
 
@@ -567,22 +609,20 @@
     // Reels-only UI (no mode toggle)
     document.addEventListener('DOMContentLoaded', ()=>{
       const spinBtn = document.getElementById('spin'); if(spinBtn) spinBtn.addEventListener('click', spin);
-      const autoBtn = document.getElementById('autoSpin'); const autoCountEl = document.getElementById('autoCount'); if(autoCountEl){ autoCountEl.addEventListener('input', (e)=>{ const v = Number(e.target.value)||0; autoSpinCount = Math.max(0, Math.floor(v)); }); }
+      const autoBtn = document.getElementById('autoSpin');
       if(autoBtn){ autoBtn.addEventListener('click', ()=>{
+        const autoStatusEl = document.getElementById('autoStatus');
         AUTO_SPIN_ON = !AUTO_SPIN_ON; autoBtn.textContent = AUTO_SPIN_ON ? 'Stop Auto' : 'Auto Spin';
-        if(AUTO_SPIN_ON){
-          // if input had a value, use it; otherwise keep existing autoSpinCount
-          const inputVal = Number((autoCountEl && autoCountEl.value) || 0) || 0; if(inputVal>0) autoSpinCount = Math.max(0, Math.floor(inputVal));
-          // start interval loop
+        if(AUTO_SPIN_ON){ if(autoStatusEl) autoStatusEl.textContent = autoSpinCount>0 ? String(autoSpinCount) : '∞';
+          // start interval loop (if autoSpinCount already set by presets)
           _autoSpinInterval = setInterval(async ()=>{
-            // safety: stop if balance insufficient and not in free spins
-            if(!inFreeSpins && balance < betPerSpin){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; return; }
-            // disable auto if user manually toggles buttons
+            if(!inFreeSpins && balance < betPerSpin){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; if(autoStatusEl) autoStatusEl.textContent='—'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; return; }
             if(document.getElementById('spin').disabled) return;
             await spin();
-            if(autoSpinCount>0){ autoSpinCount = Math.max(0, autoSpinCount - 1); if(autoSpinCount === 0){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; } }
+            if(autoSpinCount>0){ autoSpinCount = Math.max(0, autoSpinCount - 1); if(autoStatusEl) autoStatusEl.textContent = autoSpinCount>0 ? String(autoSpinCount) : '—'; if(autoSpinCount === 0){ AUTO_SPIN_ON=false; autoBtn.textContent='Auto Spin'; clearInterval(_autoSpinInterval); _autoSpinInterval=null; } }
+            updateUI();
           }, AUTO_SPIN_DELAY);
-        } else { if(_autoSpinInterval){ clearInterval(_autoSpinInterval); _autoSpinInterval=null; } }
+        } else { if(_autoSpinInterval){ clearInterval(_autoSpinInterval); _autoSpinInterval=null; } if(autoStatusEl) autoStatusEl.textContent='—'; }
       }); }
       const buyBtnEl = document.getElementById('buyBonus'); if(buyBtnEl) buyBtnEl.addEventListener('click', ()=>{
         const cost = betPerSpin * 100;
