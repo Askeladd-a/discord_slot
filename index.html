@@ -31,6 +31,8 @@
     /* coin particle */
     .coin-particle{position:fixed;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 30% 35%, #fff6, #ffd54a);box-shadow:0 6px 14px rgba(0,0,0,0.4);pointer-events:none;transform-origin:center center;}
     @keyframes floatUp { from { transform: translateY(0) scale(1); opacity:1 } to { transform: translateY(-72px) scale(1.2); opacity:0 } }
+    .payout-badge{position:absolute;right:6px;top:6px;min-width:40px;text-align:center;font-weight:700;padding:4px 8px;border-radius:10px;background:rgba(0,0,0,0.06);color:#222;font-size:12px;pointer-events:none;z-index:5;box-shadow:0 6px 18px rgba(0,0,0,0.12);backdrop-filter:blur(4px);transition:transform 220ms cubic-bezier(.2,.9,.2,1),box-shadow 220ms}
+    #winDetails{margin-top:10px;background:rgba(8,9,12,0.6);padding:8px 12px;border-radius:8px;color:#ffd;min-height:26px;font-size:13px}
   </style>
 </head>
 <body>
@@ -46,6 +48,7 @@
             <div style="position:relative;">
               <div class="slot" id="slot"></div>
               <svg id="payline-overlay" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible"></svg>
+              <div id="winDetails" aria-live="polite">&nbsp;</div>
             </div>
           </div>
         </div>
@@ -87,12 +90,23 @@
     </div>
   </div>
   <script>
-    // Audio removed: keep harmless no-op stubs for future reactivation
-    function playBeep(){ }
-    function playClick(){ }
-    function playStopTone(){ }
-    function playCoinSound(){ }
-    function playLeverSound(){ }
+    // Basic WebAudio helpers (lazy-init on first user gesture)
+    let _audioCtx = null;
+    function ensureAudio(){
+      if(_audioCtx) return _audioCtx;
+      try{ _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e){ _audioCtx = null; }
+      return _audioCtx;
+    }
+    function gainNode(volume=0.05){ const ctx = ensureAudio(); if(!ctx) return null; const g = ctx.createGain(); g.gain.value = volume; g.connect(ctx.destination); return g; }
+    function playClick(freq=900, dur=0.06, vol=0.04){ const ctx = ensureAudio(); if(!ctx) return; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.value = vol; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, Math.ceil(dur*1000)+30); }
+    function playStopTone(freq=640, dur=0.22, vol=0.06){ const ctx = ensureAudio(); if(!ctx) return; const o = ctx.createOscillator(); const g = ctx.createGain(); const b = ctx.createBiquadFilter(); b.type='lowpass'; b.frequency.value = 2000; o.type='triangle'; o.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.value = vol; o.connect(b); b.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); b.disconnect(); }, Math.ceil(dur*1000)+40); }
+    function playCoinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const g = ctx.createGain(); g.gain.value = 0.06; g.connect(ctx.destination); const env = g.gain; const o1 = ctx.createOscillator(); o1.type='square'; o1.frequency.setValueAtTime(1100, now); const o2 = ctx.createOscillator(); o2.type='sawtooth'; o2.frequency.setValueAtTime(1600, now); const mix = ctx.createGain(); mix.gain.value = 0.5; o1.connect(mix); o2.connect(mix); mix.connect(g); env.setValueAtTime(0.0001, now); env.linearRampToValueAtTime(0.06, now+0.005); env.exponentialRampToValueAtTime(0.001, now+0.22); o1.start(); o2.start(); setTimeout(()=>{ o1.stop(); o2.stop(); o1.disconnect(); o2.disconnect(); mix.disconnect(); g.disconnect(); }, 300);
+    }
+    function playSmallWinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const o = ctx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(900, now); const g = ctx.createGain(); g.gain.value = 0.045; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, now+0.28); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, 320); }
+    function playBigWinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const o = ctx.createOscillator(); o.type='triangle'; const g = ctx.createGain(); g.gain.value = 0.07; o.frequency.setValueAtTime(700, now); o.connect(g); g.connect(ctx.destination); o.start(); o.frequency.exponentialRampToValueAtTime(1300, now+0.6); g.gain.exponentialRampToValueAtTime(0.001, now+0.9); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, 950); }
+    // resume audio on first user gesture to satisfy autoplay policies
+    ['click','pointerdown','keydown','touchstart'].forEach(ev=>{ window.addEventListener(ev, ()=>{ if(!_audioCtx) try{ ensureAudio(); }catch(e){} }, { once:true, passive:true }); });
     // pickWeighted considers ante boosting scatter
     let anteOn = false; const ANTE_MULT = 25; const ANTE_SCATTER_BOOST = 3;
     // Image prefix and symbol definitions (was missing — causes symbols to not load)
@@ -446,7 +460,7 @@
       return;
     }
 
-    function clearHighlights(){ document.querySelectorAll('.cell').forEach(c=> c.classList.remove('win','payline')); }
+    function clearHighlights(){ document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('win','payline'); const badge = c.querySelector('.payout-badge'); if(badge) badge.remove(); }); const wd = document.getElementById('winDetails'); if(wd) wd.innerHTML='&nbsp;'; }
 
     // state
     let balance = 1000; let inFreeSpins=false; let freeSpins=0;
@@ -477,9 +491,7 @@
       setTimeout(()=>{ el.style.transition='opacity 800ms'; el.style.opacity='0'; setTimeout(()=>el.remove(),800); }, ttl);
     }
 
-    // Win sounds (small and big)
-    function playSmallWinSound(){ }
-    function playBigWinSound(){ }
+    // Win sounds implemented above
 
     // coin particle effect
     function spawnCoinParticles(x,y,count=8){
@@ -560,14 +572,35 @@
       await animateReels(built);
       res = await evaluateSpin(built.final, inFreeSpins);
       // highlight payline wins if any
-      if(res.wins && res.wins.length){ clearHighlights(); res.wins.forEach((w,idx)=>{
-        const color = PAYLINE_COLORS[idx % PAYLINE_COLORS.length];
-        w.indices.forEach(i=>{ const el = document.getElementById(`img-${i}`); if(el){ el.parentElement.classList.add('payline'); el.parentElement.style.outlineColor = color; el.parentElement.style.boxShadow = `0 6px 18px ${color}40`; } });
-      });
-        // draw first payline for clarity
+      if(res.wins && res.wins.length){
+        clearHighlights();
+        let totalPayout = 0;
+        const wd = document.getElementById('winDetails');
+        const linesText = [];
+        res.wins.forEach((w,idx)=>{
+          const color = PAYLINE_COLORS[idx % PAYLINE_COLORS.length];
+          totalPayout += w.payout || 0;
+          linesText.push(`Line ${idx+1}: ${w.symbol} x${w.count} → ${w.payout}`);
+          w.indices.forEach(i=>{ const el = document.getElementById(`img-${i}`); if(el){ const cell = el.parentElement; cell.classList.add('payline'); cell.style.outlineColor = color; cell.style.boxShadow = `0 6px 18px ${color}40`; // add badge to first index of the win
+              if(i === w.indices[0]){
+                const b = document.createElement('div'); b.className = 'payout-badge';
+                b.textContent = (w.payout? w.payout.toFixed(2) : '0');
+                // color badge to match payline
+                try{
+                  const col = PAYLINE_COLORS[idx % PAYLINE_COLORS.length] || '#ffd966';
+                  b.style.background = hexToRgba(col, 0.12);
+                  b.style.color = hexToRgba(col, 0.98);
+                  b.style.border = `1px solid ${hexToRgba(col,0.18)}`;
+                  b.style.boxShadow = `0 4px 12px ${hexToRgba(col,0.18)}`;
+                }catch(e){}
+                cell.appendChild(b);
+              }
+            } });
+        });
+        // draw animated paylines
         try{ if(res.wins && res.wins.length) drawPaylines(res.wins); }catch(e){}
-        // update left-info with textual payline wins
-        if(leftInfo) leftInfo.innerHTML = res.wins.map((w,i)=> `Line ${i+1}: ${w.symbol} x${w.count} → ${w.payout}`).join('<br>');
+        if(wd) wd.innerHTML = `<strong>Total:</strong> ${totalPayout.toFixed(2)} &nbsp; — &nbsp; ${linesText.join(' • ')}`;
+        if(leftInfo) leftInfo.innerHTML = linesText.join('<br>');
       }
       await new Promise(r=>setTimeout(r,900));
       clearHighlights(); if(leftInfo) leftInfo.innerHTML = '';
