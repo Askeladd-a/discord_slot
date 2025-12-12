@@ -37,9 +37,10 @@ WEIGHTED.push({symbol:SCATTER, weight:1});
 WEIGHTED.push({symbol:WILD, weight:6});
 WEIGHTED.push({symbol:MULT, weight:4});
 const TOTAL_WEIGHT = WEIGHTED.reduce((s,e)=>s+e.weight,0);
+const rng = require('./rng_node');
 
 function randomSymbol() {
-  let r = Math.random() * TOTAL_WEIGHT;
+  let r = rng.next() * TOTAL_WEIGHT;
   for (const e of WEIGHTED) {
     if (r < e.weight) return e.symbol;
     r -= e.weight;
@@ -96,7 +97,7 @@ function evaluatePayoutScaled(resultSymbols, currentBetPerLine, currentLines, sy
   }
 
   let wildMultiplierSum = 0;
-  resultSymbols.forEach((s) => { if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random()*3); });
+  resultSymbols.forEach((s) => { if (s.isWild) wildMultiplierSum += 1 + Math.floor(rng.next()*3); });
   const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
 
   return totalWinBase * wildMultiplier;

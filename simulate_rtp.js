@@ -1,5 +1,6 @@
 // simulate_rtp.js
 // Monte Carlo RTP estimator replicating pay-anywhere logic from index.html
+const rng = require('./rng_node');
 
 const args = process.argv.slice(2);
 const spins = Number(args[0]) || 100000;
@@ -46,7 +47,7 @@ WEIGHTED.push({symbol:MULT, weight:1});
 const TOTAL_WEIGHT = WEIGHTED.reduce((s,e)=>s+e.weight,0);
 
 function randomSymbol() {
-  let r = Math.random() * TOTAL_WEIGHT;
+  let r = rng.next() * TOTAL_WEIGHT;
   for (const e of WEIGHTED) {
     if (r < e.weight) return e.symbol;
     r -= e.weight;
@@ -66,7 +67,7 @@ function randomFinalSymbols() {
     }
     // clone and, in case of MULT, assign a random multiplier value
     if (symbol.isMultiplier) {
-      final.push({ name: 'MULT', isMultiplier: true, value: MULT_VALUES[Math.floor(Math.random()*MULT_VALUES.length)] });
+      final.push({ name: 'MULT', isMultiplier: true, value: MULT_VALUES[Math.floor(rng.next()*MULT_VALUES.length)] });
     } else if (symbol.isWild) {
       final.push({ name: 'WILD', isWild: true });
     } else if (symbol.isScatter) {
@@ -182,7 +183,7 @@ function evaluatePayout(resultSymbols, currentBetPerLine, currentLines) {
   }
 
   let wildMultiplierSum = 0;
-  resultSymbols.forEach((s) => { if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random()*3); });
+  resultSymbols.forEach((s) => { if (s.isWild) wildMultiplierSum += 1 + Math.floor(rng.next()*3); });
   const wildMultiplier = wildMultiplierSum > 0 ? wildMultiplierSum : 1;
 
   return totalWinBase * wildMultiplier;

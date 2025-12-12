@@ -59,8 +59,9 @@ function buildWeighted() {
   return {arr,total};
 }
 
+const rng = require('./rng_node');
 function pickRandom(arr, total) {
-  let r = Math.random()*total;
+  let r = rng.next()*total;
   for (const e of arr) {
     if (r < e.weight) return e.symbol;
     r -= e.weight;
@@ -119,7 +120,7 @@ function evaluatePayout(resultSymbols, currentBetPerLine, currentLines) {
   }
 
   let wildMultiplierSum = 0;
-  resultSymbols.forEach(s=>{ if (s.isWild) wildMultiplierSum += 1 + Math.floor(Math.random()*3); });
+  resultSymbols.forEach(s=>{ if (s.isWild) wildMultiplierSum += 1 + Math.floor(rng.next()*3); });
   const wildMultiplier = wildMultiplierSum>0 ? wildMultiplierSum : 1;
 
   return totalWinBase * wildMultiplier;
