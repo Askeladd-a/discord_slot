@@ -92,6 +92,8 @@
   <script>
     // Basic WebAudio helpers (lazy-init on first user gesture)
     let _audioCtx = null;
+    let SPIN_SFX_ON = true;
+    let SPIN_SFX_STYLE = 'soft'; // 'soft' or 'metal'
     function ensureAudio(){
       if(_audioCtx) return _audioCtx;
       try{ _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -99,10 +101,65 @@
       return _audioCtx;
     }
     function gainNode(volume=0.05){ const ctx = ensureAudio(); if(!ctx) return null; const g = ctx.createGain(); g.gain.value = volume; g.connect(ctx.destination); return g; }
-    function playClick(freq=900, dur=0.06, vol=0.04){ const ctx = ensureAudio(); if(!ctx) return; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.value = vol; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, Math.ceil(dur*1000)+30); }
+    // softer spin click: supports 'soft' and 'metal' styles
+    function playClick(freq=900, dur=0.06, vol=0.032){
+      if(!SPIN_SFX_ON) return;
+      const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime;
+      if(SPIN_SFX_STYLE === 'metal'){
+        // metallic click: bandpassed strike + inharmonic partials
+        try{
+          // short burst of filtered noise for metallic strike
+          const nb = Math.max(1, Math.floor(ctx.sampleRate * Math.min(dur, 0.035)));
+          const noiseBuf = ctx.createBuffer(1, nb, ctx.sampleRate);
+          const data = noiseBuf.getChannelData(0);
+          for(let i=0;i<nb;i++) data[i] = (Math.random()*2 - 1) * (1 - i/nb);
+          const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+          const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = Math.max(1200, freq * 1.2); bp.Q.value = 6;
+          const ng = ctx.createGain(); ng.gain.setValueAtTime(vol, now); ng.gain.exponentialRampToValueAtTime(0.001, now + dur*0.6);
+          src.connect(bp); bp.connect(ng); ng.connect(ctx.destination); src.start(now);
+          setTimeout(()=>{ try{ src.stop(); src.disconnect(); bp.disconnect(); ng.disconnect(); }catch(e){} }, Math.ceil((dur+0.06)*1000));
+        }catch(e){}
+        // harmonic partials to add metallic tone
+        try{
+          const freqs = [freq*1.8, freq*2.6, freq*3.7];
+          freqs.forEach((f,i)=>{
+            const o = ctx.createOscillator(); o.type = i%2? 'square':'triangle'; o.frequency.setValueAtTime(f, now + i*0.002);
+            const g = ctx.createGain(); g.gain.setValueAtTime(vol * (0.18/(i+1)), now);
+            const bp2 = ctx.createBiquadFilter(); bp2.type='bandpass'; bp2.frequency.value = f; bp2.Q.value = 8;
+            o.connect(bp2); bp2.connect(g); g.connect(ctx.destination); o.start(now + i*0.002);
+            g.gain.exponentialRampToValueAtTime(0.001, now + dur + 0.02);
+            setTimeout(()=>{ try{ o.stop(); o.disconnect(); bp2.disconnect(); g.disconnect(); }catch(e){} }, Math.ceil((dur+0.06 + i*0.02)*1000));
+          });
+        }catch(e){}
+      } else {
+        // short filtered noise attack + gentle sine body (soft)
+        try{
+          const nb = Math.max(1, Math.floor(ctx.sampleRate * Math.min(dur, 0.05)));
+          const noiseBuf = ctx.createBuffer(1, nb, ctx.sampleRate);
+          const data = noiseBuf.getChannelData(0);
+          for(let i=0;i<nb;i++) data[i] = (Math.random()*2 - 1) * (1 - i/nb);
+          const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+          const nf = ctx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 700;
+          const ng = ctx.createGain(); ng.gain.setValueAtTime(vol * 0.9, now);
+          ng.gain.exponentialRampToValueAtTime(0.001, now + dur * 0.6);
+          src.connect(nf); nf.connect(ng); ng.connect(ctx.destination);
+          src.start(now);
+          setTimeout(()=>{ try{ src.stop(); src.disconnect(); nf.disconnect(); ng.disconnect(); }catch(e){} }, Math.ceil((dur+0.06)*1000));
+        }catch(e){}
+        try{
+          const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(Math.max(200, freq * 0.55), now);
+          const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, now);
+          og.gain.linearRampToValueAtTime(vol * 0.6, now + 0.006);
+          og.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          o.connect(og); og.connect(ctx.destination); o.start(now);
+          setTimeout(()=>{ try{ o.stop(); o.disconnect(); og.disconnect(); }catch(e){} }, Math.ceil((dur+0.04)*1000));
+        }catch(e){}
+      }
+    }
     function playStopTone(freq=640, dur=0.22, vol=0.06){ const ctx = ensureAudio(); if(!ctx) return; const o = ctx.createOscillator(); const g = ctx.createGain(); const b = ctx.createBiquadFilter(); b.type='lowpass'; b.frequency.value = 2000; o.type='triangle'; o.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.value = vol; o.connect(b); b.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); b.disconnect(); }, Math.ceil(dur*1000)+40); }
     function playCoinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const g = ctx.createGain(); g.gain.value = 0.06; g.connect(ctx.destination); const env = g.gain; const o1 = ctx.createOscillator(); o1.type='square'; o1.frequency.setValueAtTime(1100, now); const o2 = ctx.createOscillator(); o2.type='sawtooth'; o2.frequency.setValueAtTime(1600, now); const mix = ctx.createGain(); mix.gain.value = 0.5; o1.connect(mix); o2.connect(mix); mix.connect(g); env.setValueAtTime(0.0001, now); env.linearRampToValueAtTime(0.06, now+0.005); env.exponentialRampToValueAtTime(0.001, now+0.22); o1.start(); o2.start(); setTimeout(()=>{ o1.stop(); o2.stop(); o1.disconnect(); o2.disconnect(); mix.disconnect(); g.disconnect(); }, 300);
     }
+    function playLeverSound(){ if(!SPIN_SFX_ON) return; const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const o = ctx.createOscillator(); const f = ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value = 900; o.type='square'; o.frequency.setValueAtTime(120, now); const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(0.055, now+0.02); g.gain.exponentialRampToValueAtTime(0.001, now+0.22); o.connect(f); f.connect(g); g.connect(ctx.destination); o.start(); setTimeout(()=>{ try{ o.stop(); o.disconnect(); f.disconnect(); g.disconnect(); }catch(e){} }, 300); }
     function playSmallWinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const o = ctx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(900, now); const g = ctx.createGain(); g.gain.value = 0.045; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001, now+0.28); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, 320); }
     function playBigWinSound(){ const ctx = ensureAudio(); if(!ctx) return; const now = ctx.currentTime; const o = ctx.createOscillator(); o.type='triangle'; const g = ctx.createGain(); g.gain.value = 0.07; o.frequency.setValueAtTime(700, now); o.connect(g); g.connect(ctx.destination); o.start(); o.frequency.exponentialRampToValueAtTime(1300, now+0.6); g.gain.exponentialRampToValueAtTime(0.001, now+0.9); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, 950); }
     // resume audio on first user gesture to satisfy autoplay policies
@@ -313,6 +370,8 @@
       if(speedNormal) speedNormal.addEventListener('click', ()=> applySpeedPreset(speedPresets.normal));
       if(speedFast) speedFast.addEventListener('click', ()=> applySpeedPreset(speedPresets.fast));
 
+      
+
       // autospin presets (10,25,50,100)
       const autoPreset10 = document.getElementById('autoPreset10');
       const autoPreset25 = document.getElementById('autoPreset25');
@@ -339,6 +398,7 @@
       if(autoPreset25) autoPreset25.addEventListener('click', ()=> startAutoWithCount(25));
       if(autoPreset50) autoPreset50.addEventListener('click', ()=> startAutoWithCount(50));
       if(autoPreset100) autoPreset100.addEventListener('click', ()=> startAutoWithCount(100));
+      
     });
 
     // payout helpers
